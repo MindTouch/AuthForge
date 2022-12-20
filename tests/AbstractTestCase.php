@@ -26,11 +26,8 @@ class AbstractTestCase extends TestCase {
     /**
      * @var string|null - project root directory
      */
-    private static $directory = null;
+    private static ?string $directory = null;
 
-    /**
-     * @return string|null
-     */
     public static function getProjectRootDirectory() : ?string {
         return self::$directory;
     }
@@ -48,10 +45,6 @@ class AbstractTestCase extends TestCase {
         ]);
     }
 
-    /**
-     * @param string $class
-     * @return MockObject
-     */
     protected function newMock(string $class) : MockObject {
         return $this->getMockBuilder($class)
             ->setMethods(get_class_methods($class))

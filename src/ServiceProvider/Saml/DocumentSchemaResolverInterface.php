@@ -19,7 +19,6 @@ namespace modethirteen\AuthForge\ServiceProvider\Saml;
 interface DocumentSchemaResolverInterface {
 
     /**
-     * @param string $schema
      * @return string - a fully qualified OS path to the requested XSD file
      */
     public function resolve(string $schema) : string;

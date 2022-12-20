@@ -21,9 +21,6 @@ use modethirteen\Http\XUri;
 
 interface SamlConfigurationInterface {
 
-    /**
-     * @return int
-     */
     public function getAllowedClockDrift() : int;
 
     /**
@@ -31,29 +28,14 @@ interface SamlConfigurationInterface {
      */
     public function getAllowedSingleLogoutStatuses() : array;
 
-    /**
-     * @return XUri
-     */
     public function getDefaultReturnUri() : XUri;
 
-    /**
-     * @return string
-     */
     public function getIdentityProviderEntityId() : string;
 
-    /**
-     * @return XUri|null
-     */
     public function getIdentityProviderSingleLogoutUri() : ?XUri;
 
-    /**
-     * @return XUri
-     */
     public function getIdentityProviderSingleSignOnUri() : XUri;
 
-    /**
-     * @return CryptoKeyInterface|null
-     */
     public function getIdentityProviderX509Certificate() : ?CryptoKeyInterface;
 
     /**
@@ -61,9 +43,6 @@ interface SamlConfigurationInterface {
      */
     public function getNameIdFormats() : array;
 
-    /**
-     * @return XUri
-     */
     public function getRelayStateBaseUri() : XUri;
 
     /**
@@ -71,103 +50,43 @@ interface SamlConfigurationInterface {
      */
     public function getServiceProviderAssertionAttributeClaims() : array;
 
-    /**
-     * @return string
-     */
     public function getServiceProviderAssertionConsumerServiceBinding() : string;
 
-    /**
-     * @return XUri
-     */
     public function getServiceProviderAssertionConsumerServiceUri() : XUri;
 
-    /**
-     * @return string
-     */
     public function getServiceProviderEntityId() : string;
 
-    /**
-     * @return string|null
-     */
     public function getServiceProviderNameIdFormat() : ?string;
 
-    /**
-     * @return CryptoKeyInterface|null
-     */
     public function getServiceProviderPrivateKey() : ?CryptoKeyInterface;
 
-    /**
-     * @return string|null
-     */
     public function getServiceProviderRawX509CertificateText() : ?string;
 
-    /**
-     * @return string
-     */
     public function getServiceProviderServiceName() : string;
 
-    /**
-     * @return string
-     */
     public function getServiceProviderSingleLogoutServiceBinding() : string;
 
-    /**
-     * @return XUri
-     */
     public function getServiceProviderSingleLogoutServiceUri() : XUri;
 
-    /**
-     * @return CryptoKeyInterface|null
-     */
     public function getServiceProviderX509Certificate() : ?CryptoKeyInterface;
 
-    /**
-     * @return bool
-     */
     public function isAssertionEncryptionRequired() : bool;
 
-    /**
-     * @return bool
-     */
     public function isAssertionSignatureRequired() : bool;
 
-    /**
-     * @return bool
-     */
     public function isAuthnRequestSignatureRequired() : bool;
 
-    /**
-     * @return bool
-     */
     public function isLogoutRequestSignatureRequired() : bool;
 
-    /**
-     * @return bool
-     */
     public function isLogoutResponseSignatureRequired() : bool;
 
-    /**
-     * @return bool
-     */
     public function isMessageSignatureRequired() : bool;
 
-    /**
-     * @return bool
-     */
     public function isMetadataSignatureRequired() : bool;
 
-    /**
-     * @return bool
-     */
     public function isNameIdEncryptionRequired() : bool;
 
-    /**
-     * @return bool
-     */
     public function isNameIdFormatEnforcementEnabled() : bool;
 
-    /**
-     * @return bool
-     */
     public function isStrictValidationRequired() : bool;
 }

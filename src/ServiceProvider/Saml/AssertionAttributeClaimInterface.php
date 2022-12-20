@@ -19,27 +19,15 @@ namespace modethirteen\AuthForge\ServiceProvider\Saml;
 interface AssertionAttributeClaimInterface {
 
     // attribute name formats
-    const NAME_FORMAT_UNSPECIFIED = 'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified';
-    const NAME_FORMAT_URI = 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri';
-    const NAME_FORMAT_BASIC = 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic';
+    public const NAME_FORMAT_UNSPECIFIED = 'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified';
+    public const NAME_FORMAT_URI = 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri';
+    public const NAME_FORMAT_BASIC = 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic';
 
-    /**
-     * @return string|null
-     */
     public function getFriendlyName() : ?string;
 
-    /**
-     * @return string
-     */
     public function getName() : string;
 
-    /**
-     * @return string|null
-     */
     public function getNameFormat() : ?string;
 
-    /**
-     * @return bool
-     */
     public function isRequired() : bool;
 }

@@ -32,9 +32,9 @@ class toArray_Test extends AbstractOAuthTestCase {
 
         // arrange
         $claims = new JsonWebTokenClaims();
-        $claims->set('iat', 1531406335);
-        $claims->set('nbf', 1531406335);
-        $claims->set('exp', 1531409935);
+        $claims->set('iat', 1_531_406_335);
+        $claims->set('nbf', 1_531_406_335);
+        $claims->set('exp', 1_531_409_935);
         $claims->set('iss', 'plugh');
         $claims->set('aud', '0oafuv29cxTJWpZng0h7');
         $claims->set('sub', 'modethirteen');
@@ -49,9 +49,9 @@ class toArray_Test extends AbstractOAuthTestCase {
 
         // assert
         static::assertEquals([
-            'iat' => 1531406335,
-            'nbf' => 1531406335,
-            'exp' => 1531409935,
+            'iat' => 1_531_406_335,
+            'nbf' => 1_531_406_335,
+            'exp' => 1_531_409_935,
             'iss' => 'plugh',
             'aud' => '0oafuv29cxTJWpZng0h7',
             'sub' => 'modethirteen',

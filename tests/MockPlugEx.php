@@ -24,7 +24,6 @@ class MockPlugEx {
     /**
      * Send global MockPlug details to console
      *
-     * @param TestCase $test
      * @param bool $isError - send details to stderr (default: false, send to stdout)
      */
     public static function writeMockPlugDetailsToConsole(TestCase $test, bool $isError = false) : void {

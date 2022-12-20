@@ -37,43 +37,8 @@ use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 class SamlUriFactory implements SamlUriFactoryInterface {
 
-    /**
-     * @var DateTimeInterface
-     */
-    private $dateTime;
-
-    /**
-     * @var ContextLoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var SamlConfigurationInterface
-     */
-    private $saml;
-
-    /**
-     * @var SessionIndexRegistryInterface
-     */
-    private $sessionIndexRegistry;
-
-    /**
-     * @var UuidFactoryInterface
-     */
-    private $uuidFactory;
-
-    public function __construct(
-        SamlConfigurationInterface $saml,
-        DateTimeInterface $dateTime,
-        ContextLoggerInterface $logger,
-        UuidFactoryInterface $uuidFactory,
-        SessionIndexRegistryInterface $sessionIndexRegistry
-    ) {
-        $this->saml = $saml;
-        $this->dateTime = $dateTime;
-        $this->logger = $logger;
-        $this->uuidFactory = $uuidFactory;
-        $this->sessionIndexRegistry = $sessionIndexRegistry;
+    public function __construct(private SamlConfigurationInterface $saml, private DateTimeInterface $dateTime, private ContextLoggerInterface $logger, private UuidFactoryInterface $uuidFactory, private SessionIndexRegistryInterface $sessionIndexRegistry)
+    {
     }
 
     /**
@@ -102,7 +67,7 @@ class SamlUriFactory implements SamlUriFactoryInterface {
             'DocumentId' => $id,
             'AuthnRequestId' => $id,
             'Url' => $uri->toString(),
-            'SignatureAlgorithm' => isset($parameters['SigAlg']) ? $parameters['SigAlg'] : null,
+            'SignatureAlgorithm' => $parameters['SigAlg'] ?? null,
             'RelayState' => $returnHref
         ]);
         return $uri->withQueryParams(QueryParams::newFromArray($parameters));
@@ -140,7 +105,7 @@ class SamlUriFactory implements SamlUriFactoryInterface {
             'LogoutRequestId' => $id,
             'Url' => $uri->toString(),
             'SessionIndex' => $sessionIndex,
-            'SignatureAlgorithm' => isset($parameters['SigAlg']) ? $parameters['SigAlg'] : null,
+            'SignatureAlgorithm' => $parameters['SigAlg'] ?? null,
             'RelayState' => $returnHref
         ]);
         return $uri->withQueryParams(QueryParams::newFromArray($parameters));
@@ -175,7 +140,7 @@ class SamlUriFactory implements SamlUriFactoryInterface {
             'DocumentId' => $id,
             'LogoutResponseId' => $id,
             'Url' => $uri->toString(),
-            'SignatureAlgorithm' => isset($parameters['SigAlg']) ? $parameters['SigAlg'] : null,
+            'SignatureAlgorithm' => $parameters['SigAlg'] ?? null,
             'RelayState' => $returnHref
         ]);
         return $uri->withQueryParams(QueryParams::newFromArray($parameters));
@@ -183,9 +148,6 @@ class SamlUriFactory implements SamlUriFactoryInterface {
 
     /**
      * @deprecated replace with \modethirteen\AuthForge\ServiceProvider\Saml\Http\SamlHttpMessageUri::withSignature
-     * @param string $samlRequest
-     * @param string $relayState
-     * @return string
      * @throws SamlCannotLoadCryptoKeyException
      * @throws SamlCannotGenerateSignatureException
      */
@@ -218,8 +180,6 @@ class SamlUriFactory implements SamlUriFactoryInterface {
     }
 
     /**
-     * @param string $id
-     * @return string
      * @throws SamlCannotDeflateOutgoingHttpMessageException
      */
     private function newAuthnRequest(string $id) : string {
@@ -259,18 +219,11 @@ class SamlUriFactory implements SamlUriFactoryInterface {
         return base64_encode($deflated);
     }
 
-    /**
-     * @return string
-     */
     private function newId() : string {
         return 'mindtouch_' . $this->uuidFactory->uuid4()->toString();
     }
 
     /**
-     * @param string $id
-     * @param string $nameId
-     * @param string|null $sessionIndex
-     * @return string
      * @throws SamlCannotDeflateOutgoingHttpMessageException
      * @throws SamlCannotEncryptMessageDataNameIdException
      * @throws SamlCannotLoadCryptoKeyException
@@ -348,9 +301,6 @@ class SamlUriFactory implements SamlUriFactoryInterface {
     }
 
     /**
-     * @param string $id
-     * @param string $inResponseTo
-     * @return string
      * @throws SamlCannotDeflateOutgoingHttpMessageException
      */
     private function newLogoutResponse(string $id, string $inResponseTo) : string {

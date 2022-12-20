@@ -51,7 +51,6 @@ abstract class AbstractHttpMessage implements HttpMessageInterface  {
     abstract protected static function isHttpMessageDeflated() : bool;
 
     /**
-     * @param ServerRequestEx $request
      * @return string
      * @throws MalformedUriException
      */
@@ -110,7 +109,7 @@ abstract class AbstractHttpMessage implements HttpMessageInterface  {
             }
             try {
                 $message = (new StringEx($message))->decodeBase64(true)->toString();
-            } catch(StringExCannotDecodeBase64StringException $e) {
+            } catch(StringExCannotDecodeBase64StringException) {
                 throw new SamlDocumentCannotLoadTextException($message);
             }
             if(static::isHttpMessageDeflated()) {
@@ -123,7 +122,7 @@ abstract class AbstractHttpMessage implements HttpMessageInterface  {
             $this->document = $documentFactory->newMessageDocument($this->message);
         } catch(
             ServerRequestInterfaceParsedBodyException |
-            SamlDocumentCannotLoadTextException $e
+            SamlDocumentCannotLoadTextException
         ) {
             throw new SamlHttpMessageCannotParseHttpMessageException();
         }
@@ -134,7 +133,6 @@ abstract class AbstractHttpMessage implements HttpMessageInterface  {
     }
 
     /**
-     * @param DOMElement $encryptedElement
      * @return DOMElement|null
      * @throws SamlHttpMessageElementDecryptionException
      * @throws SamlHttpMessageElementDecryptionAlgorithmMismatchException

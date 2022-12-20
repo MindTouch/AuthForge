@@ -19,21 +19,12 @@ namespace modethirteen\AuthForge\ServiceProvider\Saml\Exception;
 class SamlCannotDeflateOutgoingHttpMessageException extends SamlException {
 
     /**
-     * @var string
-     */
-    private $data;
-
-    /**
      * @param string $data
      */
-    public function __construct(string $data) {
+    public function __construct(private string $data) {
         parent::__construct('Cannot deflate outgoing HTTP message');
-        $this->data = $data;
     }
 
-    /**
-     * @return string
-     */
     public function getData() : string {
         return $this->data;
     }

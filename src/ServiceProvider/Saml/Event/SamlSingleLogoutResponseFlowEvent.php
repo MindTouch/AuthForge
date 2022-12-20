@@ -23,22 +23,13 @@ use modethirteen\AuthForge\Common\Utility\ArrayEx;
 class SamlSingleLogoutResponseFlowEvent extends AbstractEvent  {
 
     /**
-     * @var string
-     */
-    private $status;
-
-    /**
      * @param DateTimeInterface $dateTime
      * @param string $status
      */
-    public function __construct(DateTimeInterface $dateTime, string $status) {
+    public function __construct(DateTimeInterface $dateTime, private string $status) {
         parent::__construct($dateTime);
-        $this->status = $status;
     }
 
-    /**
-     * @return string
-     */
     public function getStatus() : string {
         return $this->status;
     }

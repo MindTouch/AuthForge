@@ -25,20 +25,7 @@ use modethirteen\Http\Result;
 
 class OAuthFlowEvent extends AbstractEvent  {
 
-    /**
-     * @var ClaimsInterface
-     */
-    private $claims;
-
-    /**
-     * @var string
-     */
-    private $middlewareServiceName;
-
-    /**
-     * @var Result
-     */
-    private $tokenResult;
+    private string $middlewareServiceName;
 
     /**
      * @param DateTimeInterface $dateTime
@@ -46,30 +33,19 @@ class OAuthFlowEvent extends AbstractEvent  {
      * @param ClaimsInterface $claims
      * @param OAuthMiddlewareServiceInterface $middlewareService
      */
-    public function __construct(DateTimeInterface $dateTime, Result $tokenResult, ClaimsInterface $claims, OAuthMiddlewareServiceInterface $middlewareService) {
+    public function __construct(DateTimeInterface $dateTime, private Result $tokenResult, private ClaimsInterface $claims, OAuthMiddlewareServiceInterface $middlewareService) {
         parent::__construct($dateTime);
-        $this->tokenResult = $tokenResult;
-        $this->claims = $claims;
-        $this->middlewareServiceName = get_class($middlewareService);
+        $this->middlewareServiceName = $middlewareService::class;
     }
 
-    /**
-     * @return ClaimsInterface
-     */
     public function getClaims() : ClaimsInterface {
         return $this->claims;
     }
 
-    /**
-     * @return string
-     */
     public function getMiddlewareServiceName() : string {
         return $this->middlewareServiceName;
     }
 
-    /**
-     * @return Result
-     */
     public function getTokenResult() : Result {
         return $this->tokenResult;
     }

@@ -20,10 +20,7 @@ use modethirteen\Crypto\CryptoKeyInterface;
 
 class SamlCryptoKeyException extends SamlException {
 
-    /**
-     * @var string
-     */
-    private $error;
+    private string $error;
 
     /**
      * @var CryptoKeyInterface

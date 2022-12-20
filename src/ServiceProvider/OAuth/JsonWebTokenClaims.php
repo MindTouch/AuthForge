@@ -24,13 +24,13 @@ use modethirteen\XArray\JsonArray;
 class JsonWebTokenClaims extends AbstractClaims implements ClaimsInterface {
 
     #region reserved jwt claims (see https://www.iana.org/assignments/jwt/jwt.xhtml#claims for detailed list)
-    const CLAIM_AUD = 'aud';
-    const CLAIM_EXP = 'exp';
-    const CLAIM_JTI = 'jti';
-    const CLAIM_IAT = 'iat';
-    const CLAIM_ISS = 'iss';
-    const CLAIM_NBF = 'nbf';
-    const CLAIM_SUB = 'sub';
+    public const CLAIM_AUD = 'aud';
+    public const CLAIM_EXP = 'exp';
+    public const CLAIM_JTI = 'jti';
+    public const CLAIM_IAT = 'iat';
+    public const CLAIM_ISS = 'iss';
+    public const CLAIM_NBF = 'nbf';
+    public const CLAIM_SUB = 'sub';
     #endregion
 
     /**
@@ -45,7 +45,7 @@ class JsonWebTokenClaims extends AbstractClaims implements ClaimsInterface {
      *
      * @var string[]
      */
-    private static $registeredClaims = [
+    private static array $registeredClaims = [
         self::CLAIM_AUD,
         self::CLAIM_EXP,
         self::CLAIM_JTI,
@@ -65,9 +65,7 @@ class JsonWebTokenClaims extends AbstractClaims implements ClaimsInterface {
     }
 
     public function toSecureArray() : array {
-        return array_filter($this->toArray(), function($claim) : bool {
-            return !in_array($claim, static::getRegisteredClaims());
-        }, ARRAY_FILTER_USE_KEY);
+        return array_filter($this->toArray(), fn($claim): bool => !in_array($claim, static::getRegisteredClaims()), ARRAY_FILTER_USE_KEY);
     }
 
     public function toSecureJson() : string {

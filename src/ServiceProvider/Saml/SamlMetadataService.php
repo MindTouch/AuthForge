@@ -31,39 +31,11 @@ use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlMetadataServiceExc
 use modethirteen\TypeEx\StringEx;
 
 class SamlMetadataService implements SamlMetadataServiceInterface {
-    const TIME_VALID = 172800;  // 2 days
-    const TIME_CACHED = 604800; // 1 week
+    public const TIME_VALID = 172800;  // 2 days
+    public const TIME_CACHED = 604800;
 
-    /**
-     * @var DateTimeInterface
-     */
-    private $dateTime;
-
-    /**
-     * @var DocumentFactoryInterface
-     */
-    private $documentFactory;
-
-    /**
-     * @var ContextLoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var SamlConfigurationInterface
-     */
-    private $saml;
-
-    public function __construct(
-        SamlConfigurationInterface $saml,
-        DateTimeInterface $dateTime,
-        ContextLoggerInterface $logger,
-        DocumentFactoryInterface $documentFactory
-    ) {
-        $this->saml = $saml;
-        $this->dateTime = $dateTime;
-        $this->logger = $logger;
-        $this->documentFactory = $documentFactory;
+    public function __construct(private SamlConfigurationInterface $saml, private DateTimeInterface $dateTime, private ContextLoggerInterface $logger, private DocumentFactoryInterface $documentFactory)
+    {
     }
 
     /**
@@ -190,11 +162,6 @@ class SamlMetadataService implements SamlMetadataServiceInterface {
         return $document;
     }
 
-    /**
-     * @param DOMDocument $document
-     * @param DOMElement $acsDocument
-     * @param AssertionAttributeClaimInterface $attribute
-     */
     private function addAttribute(DOMDocument $document, DOMElement $acsDocument, AssertionAttributeClaimInterface $attribute) : void {
         $requestedAttributeDocument = $document->createElementNS(Document::NS_MD, 'md:RequestedAttribute');
         $requestedAttributeDocument->setAttribute('isRequired', StringEx::stringify($attribute->isRequired()));

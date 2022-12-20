@@ -20,44 +20,20 @@ use modethirteen\Http\XUri;
 
 interface OAuthConfigurationInterface {
 
-    /**
-     * @return int
-     */
     public function getAllowedClockDrift() : int;
 
-    /**
-     * @return XUri
-     */
     public function getAuthorizationCodeConsumerUri() : XUri;
 
-    /**
-     * @return XUri
-     */
     public function getDefaultReturnUri() : XUri;
 
-    /**
-     * @return string
-     */
     public function getRelyingPartyClientId() : string;
 
-    /**
-     * @return string
-     */
     public function getRelyingPartyClientSecret() : string;
 
-    /**
-     * @return XUri
-     */
     public function getIdentityProviderAuthorizationUri() : XUri;
 
-    /**
-     * @return string
-     */
     public function getIdentityProviderTokenClientAuthenticationMethod() : string;
 
-    /**
-     * @return XUri
-     */
     public function getIdentityProviderTokenUri() : XUri;
 
     /**

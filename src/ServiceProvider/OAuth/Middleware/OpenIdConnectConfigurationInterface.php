@@ -25,28 +25,13 @@ interface OpenIdConnectConfigurationInterface {
      */
     public function getAllowedClaims() : array;
 
-    /**
-     * @return string
-     */
     public function getIdentityProviderIssuer() : string;
 
-    /**
-     * @return string|null
-     */
     public function getIdentityProviderJsonWebKeySet() : ?string;
 
-    /**
-     * @return XUri|null
-     */
     public function getIdentityProviderJsonWebKeySetUri() : ?XUri;
 
-    /**
-     * @return XUri|null
-     */
     public function getIdentityProviderLogoutUri() : ?XUri;
 
-    /**
-     * @return XUri|null
-     */
     public function getIdentityProviderUserInfoUri() : ?XUri;
 }

@@ -19,16 +19,10 @@ namespace modethirteen\AuthForge\Common\Exception;
 class ServerRequestInterfaceParsedBodyException extends AuthException {
 
     /**
-     * @var mixed
-     */
-    private $body;
-
-    /**
      * @param mixed $body
      */
-    public function __construct($body) {
+    public function __construct(private $body) {
         parent::__construct('AuthForge expects the value type of a server request parsed body to be array<string, string>');
-        $this->body = $body;
     }
 
     /**

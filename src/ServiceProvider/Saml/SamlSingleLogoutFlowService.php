@@ -54,61 +54,23 @@ class SamlSingleLogoutFlowService implements SamlSingleLogoutFlowServiceInterfac
     use RelayStateAuthFlowServiceTrait;
 
     /**
-     * @var DateTimeInterface
-     */
-    private $dateTime;
-
-    /**
-     * @var DocumentFactoryInterface
-     */
-    private $documentFactory;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @var ContextLoggerInterface
      */
     private $logger;
 
-    /**
-     * @var SamlConfigurationInterface
-     */
-    private $saml;
-
-    /**
-     * @var SessionIndexRegistryInterface
-     */
-    private $sessionIndexRegistry;
-
-    /**
-     * @var UuidFactoryInterface
-     */
-    private $uuidFactory;
-
     public function __construct(
-        SamlConfigurationInterface $saml,
-        DateTimeInterface $dateTime,
+        private SamlConfigurationInterface $saml,
+        private DateTimeInterface $dateTime,
         ContextLoggerInterface $logger,
-        UuidFactoryInterface $uuidFactory,
-        EventDispatcherInterface $eventDispatcher,
-        DocumentFactoryInterface $documentFactory,
-        SessionIndexRegistryInterface $sessionIndexRegistry
+        private UuidFactoryInterface $uuidFactory,
+        private EventDispatcherInterface $eventDispatcher,
+        private DocumentFactoryInterface $documentFactory,
+        private SessionIndexRegistryInterface $sessionIndexRegistry
     ) {
-        $this->saml = $saml;
-        $this->dateTime = $dateTime;
         $this->logger = $logger;
-        $this->uuidFactory = $uuidFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->documentFactory = $documentFactory;
-        $this->sessionIndexRegistry = $sessionIndexRegistry;
     }
 
     /**
-     * @param ServerRequestEx $request
-     * @return XUri
      * @throws SamlSingleLogoutFlowServiceLogoutRequestException
      * @throws SamlSingleLogoutFlowServiceLogoutResponseException
      * @throws SamlSingleLogoutFlowServiceException

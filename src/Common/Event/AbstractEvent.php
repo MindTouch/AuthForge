@@ -23,28 +23,14 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 abstract class AbstractEvent extends Event implements StoppableEventInterface {
 
-    /**
-     * @var DateTimeInterface
-     */
-    private $dateTime;
-
-    /**
-     * @param DateTimeInterface $dateTime
-     */
-    public function __construct(DateTimeInterface $dateTime) {
-        $this->dateTime = $dateTime;
+    public function __construct(private DateTimeInterface $dateTime)
+    {
     }
 
-    /**
-     * @return DateTimeInterface
-     */
     public function getDateTime() : DateTimeInterface {
         return $this->dateTime;
     }
 
-    /**
-     * @return array
-     */
     public function toArray() : array {
         return [
             'DateTime' => DateTimeImmutableEx::fromDateTime($this->getDateTime())->toISO8601()

@@ -21,41 +21,23 @@ use Psr\Log\LoggerInterface;
 abstract class AbstractClaimsFactory {
 
     /**
-     * @var string[]
-     */
-    private $allowedClaims;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param string[] $allowedClaims - string list of allowed claim names
-     * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger, array $allowedClaims = []) {
-        $this->logger = $logger;
-        $this->allowedClaims = $allowedClaims;
+    public function __construct(private LoggerInterface $logger, private array $allowedClaims = [])
+    {
     }
 
     /**
      * @param array<string, mixed> $data - <claim name, value> authentication and identity data from identity provider
-     * @return array
      */
     protected function getFilteredClaimsData(array $data) : array {
-        $filteredClaimsData = array_filter($data, function($name) : bool {
-            return in_array($name, $this->allowedClaims);
-        }, ARRAY_FILTER_USE_KEY);
+        $filteredClaimsData = array_filter($data, fn($name): bool => in_array($name, $this->allowedClaims), ARRAY_FILTER_USE_KEY);
         $this->logger->debug('Removing claims not explicitly allowed...', [
             'RemovedClaims' => array_values(array_diff(array_keys($data), array_keys($filteredClaimsData)))
         ]);
         return $filteredClaimsData;
     }
 
-    /**
-     * @return LoggerInterface
-     */
     protected function getLogger() : LoggerInterface {
         return $this->logger;
     }

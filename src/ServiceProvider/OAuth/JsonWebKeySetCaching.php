@@ -26,12 +26,7 @@ use modethirteen\TypeEx\StringEx;
 use Psr\SimpleCache\CacheInterface;
 
 class JsonWebKeySetCaching implements JsonWebKeySetCachingInterface {
-    const DEFAULT_TTL = 86400;
-
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
+    public const DEFAULT_TTL = 86400;
 
     /**
      * @var Closure
@@ -39,11 +34,9 @@ class JsonWebKeySetCaching implements JsonWebKeySetCachingInterface {
     private $cacheKeyBuilder;
 
     /**
-     * @param CacheInterface $cache
      * @param Closure $cacheKeyBuilder - <$cacheKeyBuilder(XUri $jsonWebKeySetUri) : ?string>
      */
-    public function __construct(CacheInterface $cache, Closure $cacheKeyBuilder) {
-        $this->cache = $cache;
+    public function __construct(private CacheInterface $cache, Closure $cacheKeyBuilder) {
         $this->cacheKeyBuilder = $cacheKeyBuilder;
     }
 
@@ -56,14 +49,10 @@ class JsonWebKeySetCaching implements JsonWebKeySetCachingInterface {
                 }
                 return $result;
             })
-            ->withBuildValidator(function(Result $result) : bool {
-                return $result->isSuccess();
-            });
+            ->withBuildValidator(fn(Result $result): bool => $result->isSuccess());
         $cacheKey = $this->newCacheKey($jsonWebKeySetUri);
         if($cacheKey !== null) {
-            $builder = $builder->withCache($this->cache, function() use ($cacheKey) {
-                return $cacheKey;
-            })
+            $builder = $builder->withCache($this->cache, fn() => $cacheKey)
             ->withCacheValidator(function($result) use ($jsonWebKeySetUri, $ignoreCachedResult) : bool {
                 if($ignoreCachedResult) {
                     return false;
@@ -99,7 +88,6 @@ class JsonWebKeySetCaching implements JsonWebKeySetCachingInterface {
     }
 
     /**
-     * @param XUri $jsonWebKeysUri
      * @return string
      */
     private function newCacheKey(XUri $jsonWebKeysUri) : ?string {

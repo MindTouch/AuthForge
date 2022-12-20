@@ -24,36 +24,18 @@ use modethirteen\AuthForge\Common\Utility\ArrayEx;
 class SamlAuthnResponseFlowEvent extends AbstractEvent  {
 
     /**
-     * @var ClaimsInterface
-     */
-    private $claims;
-
-    /**
-     * @var string
-     */
-    private $sessionIndex;
-
-    /**
      * @param DateTimeInterface $dateTime
      * @param ClaimsInterface $claims
      * @param string $sessionIndex
      */
-    public function __construct(DateTimeInterface $dateTime, ClaimsInterface $claims, string $sessionIndex) {
+    public function __construct(DateTimeInterface $dateTime, private ClaimsInterface $claims, private string $sessionIndex) {
         parent::__construct($dateTime);
-        $this->claims = $claims;
-        $this->sessionIndex = $sessionIndex;
     }
 
-    /**
-     * @return ClaimsInterface
-     */
     public function getClaims() : ClaimsInterface {
         return $this->claims;
     }
 
-    /**
-     * @return string
-     */
     public function getSessionIndex() : string {
         return $this->sessionIndex;
     }

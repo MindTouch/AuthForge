@@ -26,7 +26,7 @@ abstract class AbstractContextLogger extends AbstractLogger implements ContextLo
     /**
      * @var Closure[]
      */
-    private $handlers = [];
+    private array $handlers = [];
 
     /**
      * @param Closure $handler - <$handler(MutableXArray $context) : void> : insert context for all subsequent logged messages
@@ -40,16 +40,8 @@ abstract class AbstractContextLogger extends AbstractLogger implements ContextLo
         $this->write($level, LoggerStringEx::interpolate($message, $context), $context);
     }
 
-    /**
-     * @param mixed $level
-     * @param string $message
-     * @param array $context
-     */
-    abstract protected function write($level, string $message, array $context) : void;
+    abstract protected function write(mixed $level, string $message, array $context) : void;
 
-    /**
-     * @return array
-     */
     private function getBaseContext() : array {
         $context = [];
         foreach($this->handlers as $handler) {

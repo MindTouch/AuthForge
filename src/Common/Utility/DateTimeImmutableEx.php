@@ -21,10 +21,6 @@ use DateTimeInterface;
 
 class DateTimeImmutableEx extends DateTimeImmutable implements DateTimeInterface {
 
-    /**
-     * @param DateTimeInterface $dateTime
-     * @return DateTimeImmutableEx|null
-     */
     public static function fromDateTime(DateTimeInterface $dateTime) : ?DateTimeImmutableEx {
         $instance = (new DateTimeImmutableEx())->setTimestamp($dateTime->getTimestamp());
         return $instance instanceof DateTimeImmutableEx ? $instance : null;
@@ -32,7 +28,6 @@ class DateTimeImmutableEx extends DateTimeImmutable implements DateTimeInterface
 
     /**
      * @param string $timestamp - ISO8061 timestamp (yyyy-MM-ddTHH:mm:ssZ)
-     * @return DateTimeImmutableEx|null
      */
     public static function fromISO8601(string $timestamp) : ?DateTimeImmutableEx {
         $matches = [];
@@ -65,9 +60,6 @@ class DateTimeImmutableEx extends DateTimeImmutable implements DateTimeInterface
 
     /**
      * Standard ISO8601 duration format (for xs:duration XML schema)
-     *
-     * @param int $seconds
-     * @return string
      */
     public static function toISO8601Duration(int $seconds) : string {
         $days = floor($seconds / 86400);
@@ -81,8 +73,6 @@ class DateTimeImmutableEx extends DateTimeImmutable implements DateTimeInterface
 
     /**
      * Standard UTC time: "yyyy-MM-ddTHH:mm:ssZ"
-     *
-     * @return string
      */
     public function toISO8601() : string {
         return gmdate('Y-m-d', $this->getTimestamp()) . 'T' . gmdate('H:i:s', $this->getTimestamp()) . 'Z';

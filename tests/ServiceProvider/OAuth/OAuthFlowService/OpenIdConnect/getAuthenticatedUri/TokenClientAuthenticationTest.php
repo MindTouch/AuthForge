@@ -57,9 +57,6 @@ use Ramsey\Uuid\UuidFactoryInterface;
 
 class TokenClientAuthenticationTest extends AbstractOAuthTestCase {
 
-    /**
-     * @return array
-     */
     public static function tokenClientAuthenticationMethod_Provider() : array {
         $params = [];
         foreach(self::getTokenClientAuthenticationMethods() as $method) {
@@ -71,7 +68,6 @@ class TokenClientAuthenticationTest extends AbstractOAuthTestCase {
     /**
      * @dataProvider tokenClientAuthenticationMethod_Provider
      * @test
-     * @param string $tokenClientAuthenticationMethod
      * @throws InvalidDictionaryValueException
      * @throws JsonContentCannotSerializeArrayException
      * @throws MalformedUriException
@@ -130,9 +126,7 @@ class TokenClientAuthenticationTest extends AbstractOAuthTestCase {
             ->willReturn(null);
 
         /** @var CacheInterface $cache */
-        $caching = new JsonWebKeySetCaching($cache, function() {
-            return '12345';
-        });
+        $caching = new JsonWebKeySetCaching($cache, fn() => '12345');
 
         // oauth configuration
         $oauth = $this->newMock(OAuthConfigurationInterface::class);
@@ -221,37 +215,30 @@ class TokenClientAuthenticationTest extends AbstractOAuthTestCase {
             'grant_type' => 'authorization_code',
             'redirect_uri' => $authorizationCodeConsumerUri->toString()
         ];
-        switch($tokenClientAuthenticationMethod) {
-            case OAuthFlowService::TOKEN_AUTH_METHOD_CLIENT_SECRET_BASIC:
-                $matcher = (new MockRequestMatcher(Plug::METHOD_POST, $identityProviderTokenUri))
-                    ->withContent((new UrlEncodedFormDataContent($tokenRequestContent)))
-                    ->withAddedHeaders(Headers::newFromHeaderNameValuePairs([
-                        [Headers::HEADER_AUTHORIZATION, 'Basic ' . base64_encode("{$relyingPartyClientId}:{$relyingPartyClientSecret}")]
-                    ]));
-                break;
-            case OAuthFlowService::TOKEN_AUTH_METHOD_CLIENT_SECRET_JWT:
-                $matcher = (new MockRequestMatcher(Plug::METHOD_POST, $identityProviderTokenUri))
-                    ->withContent((new UrlEncodedFormDataContent(array_merge([
-                        'client_assertion' => self::getTokenAuthenticationClientAssertionSignature(
-                            $identityProviderTokenUri->toString(),
-                            $relyingPartyClientId,
-                            $relyingPartyClientSecret,
-                            $dateTime,
-                            $uuidFactory
-                        )->toString(),
-                        'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
-                    ], $tokenRequestContent))));
-                break;
-            case OAuthFlowService::TOKEN_AUTH_METHOD_CLIENT_SECRET_POST:
-                $matcher = (new MockRequestMatcher(Plug::METHOD_POST, $identityProviderTokenUri))
-                    ->withContent((new UrlEncodedFormDataContent(array_merge([
-                        'client_id' => '0oafuv29cxTJWpZng0h7',
-                        'client_secret' => '5931B3995B9E7AC55499087B83E4C3DC4AD8C505'
-                    ], $tokenRequestContent))));
-                break;
-            default:
-                throw new NotSupportedException('Unsupported token client authentication method');
-        }
+        $matcher = match ($tokenClientAuthenticationMethod) {
+            OAuthFlowService::TOKEN_AUTH_METHOD_CLIENT_SECRET_BASIC => (new MockRequestMatcher(Plug::METHOD_POST, $identityProviderTokenUri))
+                ->withContent((new UrlEncodedFormDataContent($tokenRequestContent)))
+                ->withAddedHeaders(Headers::newFromHeaderNameValuePairs([
+                    [Headers::HEADER_AUTHORIZATION, 'Basic ' . base64_encode("{$relyingPartyClientId}:{$relyingPartyClientSecret}")]
+                ])),
+            OAuthFlowService::TOKEN_AUTH_METHOD_CLIENT_SECRET_JWT => (new MockRequestMatcher(Plug::METHOD_POST, $identityProviderTokenUri))
+                ->withContent((new UrlEncodedFormDataContent(array_merge([
+                    'client_assertion' => self::getTokenAuthenticationClientAssertionSignature(
+                        $identityProviderTokenUri->toString(),
+                        $relyingPartyClientId,
+                        $relyingPartyClientSecret,
+                        $dateTime,
+                        $uuidFactory
+                    )->toString(),
+                    'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+                ], $tokenRequestContent)))),
+            OAuthFlowService::TOKEN_AUTH_METHOD_CLIENT_SECRET_POST => (new MockRequestMatcher(Plug::METHOD_POST, $identityProviderTokenUri))
+                ->withContent((new UrlEncodedFormDataContent(array_merge([
+                    'client_id' => '0oafuv29cxTJWpZng0h7',
+                    'client_secret' => '5931B3995B9E7AC55499087B83E4C3DC4AD8C505'
+                ], $tokenRequestContent)))),
+            default => throw new NotSupportedException('Unsupported token client authentication method'),
+        };
         MockPlug::register($matcher,
             (new Result())
                 ->withStatus(200)
@@ -270,12 +257,12 @@ class TokenClientAuthenticationTest extends AbstractOAuthTestCase {
         static::assertEquals('https://app.example.com/dashboard', $result->toString());
         static::assertCount(1, $events);
         $event = $events[0];
-        static::assertEquals(1531406335, $event->getDateTime()->getTimestamp());
+        static::assertEquals(1_531_406_335, $event->getDateTime()->getTimestamp());
         static::assertEquals(OpenIdConnectMiddlewareService::class, $event->getMiddlewareServiceName());
         static::assertEquals([
-            'iat' => 1531406335,
-            'nbf' => 1531406335,
-            'exp' => 1531409935,
+            'iat' => 1_531_406_335,
+            'nbf' => 1_531_406_335,
+            'exp' => 1_531_409_935,
             'iss' => 'plugh',
             'aud' => '0oafuv29cxTJWpZng0h7',
             'sub' => 'modethirteen',

@@ -27,12 +27,6 @@ use Psr\Log\LoggerInterface;
 
 trait RelayStateAuthFlowServiceTrait {
 
-    /**
-     * @param SamlConfigurationInterface $saml
-     * @param ServerRequestEx $request
-     * @param LoggerInterface $logger
-     * @return XUri
-     */
     protected function getRedirectUriFromRequestRelayState(SamlConfigurationInterface $saml, ServerRequestEx $request, LoggerInterface $logger) : XUri {
         try {
             $relayState = $request->getParam(HttpMessageInterface::PARAM_SAML_RELAYSTATE);

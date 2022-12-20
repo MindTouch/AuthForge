@@ -37,9 +37,6 @@ use Ramsey\Uuid\UuidInterface;
 
 class getLoginUri_Test extends AbstractSamlTestCase {
 
-    /**
-     * @return array
-     */
     public static function isAuthnRequestSignatureRequired_isNameIdEncryptionRequired_nameIdFormat_expected_Provider() : array {
         return [
             'With signature and with NameID format and without NameID encryption' => [true, HttpMessageInterface::NAMEID_EMAIL_ADDRESS, false, <<<TEXT
@@ -80,10 +77,6 @@ TEXT
     /**
      * @dataProvider isAuthnRequestSignatureRequired_isNameIdEncryptionRequired_nameIdFormat_expected_Provider
      * @test
-     * @param bool $isAuthnRequestSignatureRequired
-     * @param string|null $nameIdFormat
-     * @param bool $isNameIdEncryptionRequired
-     * @param string $expected
      * @throws SamlFlowServiceException
      * @throws MalformedUriException
      * @throws CryptoKeyFactoryCannotConstructCryptoKeyException

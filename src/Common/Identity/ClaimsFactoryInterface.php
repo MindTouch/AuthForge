@@ -23,7 +23,6 @@ interface ClaimsFactoryInterface {
     /**
      * @param array<string, mixed> $data
      * @param Closure|null $validator - <$validator($value) : bool> : check claim value for custom validation
-     * @return ClaimsInterface
      */
     public function newClaims(array $data, ?Closure $validator = null) : ClaimsInterface;
 }

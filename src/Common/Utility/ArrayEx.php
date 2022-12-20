@@ -23,9 +23,6 @@ class ArrayEx {
      *
      * @see https://github.com/modethirteen/XArray/blob/main/src/XArray.php
      * @todo (modethirteen, 20201221): replace with \modethirteen\XArray\XArray::toMergedArray
-     * @param array $first
-     * @param array $second
-     * @return array
      */
     public static function merge(array $first, array $second) : array {
         $merged = $first;
@@ -44,8 +41,6 @@ class ArrayEx {
     /**
      * @see https://github.com/modethirteen/XArray/blob/main/src/XArray.php
      * @todo (modethirteen, 20201221): replace with \modethirteen\XArray\XArray::fromDelimited
-     * @param string $delimiter
-     * @param string $text
      * @return string[]
      */
     public static function newStringArrayFromDelimitedText(string $delimiter, string $text) : array {
