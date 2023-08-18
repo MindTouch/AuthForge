@@ -335,7 +335,7 @@ class RemoteJsonWebKeysTest extends AbstractOAuthTestCase {
         }
         MockPlug::register(
             (new MockRequestMatcher(Plug::METHOD_GET,
-                $identityProviderJsonWebKeySetUri->with('client_id', $relyingPartyClientId)
+                $identityProviderJsonWebKeySetUri
             )),
             (new Result())
                 ->withStatus(200)
@@ -388,7 +388,7 @@ class RemoteJsonWebKeysTest extends AbstractOAuthTestCase {
         static::assertTrue(MockPlug::verifyAll());
         static::assertEquals('https://app.example.com/dashboard', $result->toString());
         static::assertNotNull($remoteKeysCacheKeyUri);
-        static::assertEquals($remoteKeysCacheKeyUri->toString(), $identityProviderJsonWebKeySetUri->with('client_id', $relyingPartyClientId)->toString());
+        static::assertEquals($remoteKeysCacheKeyUri->toString(), $identityProviderJsonWebKeySetUri->toString());
         static::assertCount(1, $events);
         $event = $events[0];
         static::assertEquals(1_531_406_335, $event->getDateTime()->getTimestamp());

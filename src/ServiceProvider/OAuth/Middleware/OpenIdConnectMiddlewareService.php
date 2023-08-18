@@ -121,7 +121,7 @@ class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface 
         $jwks = null;
         $keysUri = $this->oidc->getIdentityProviderJsonWebKeySetUri();
         if($keysUri !== null) {
-            $jwks = $this->getRemoteJsonWebKeySet($keysUri, $clientId);
+            $jwks = $this->getRemoteJsonWebKeySet($keysUri);
         }
         if($jwks === null) {
 
@@ -175,7 +175,7 @@ class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface 
                 $this->logger->warning('Verification failed, invalidating cached JSON web key set (JWKS)...');
 
                 // try one more time with remote source, and force a cache invalidation
-                $jwks = $this->getRemoteJsonWebKeySet($keysUri, $clientId, true);
+                $jwks = $this->getRemoteJsonWebKeySet($keysUri, true);
                 if($jwks === null) {
                     throw new OpenIdConnectMiddlewareServiceCannotLoadJsonWebKeySetException();
                 }
@@ -289,12 +289,10 @@ class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface 
 
     /**
      * @param XUri $keysUri - remote JWKS lookup service URL
-     * @param string $clientId - OAuth client ID
      * @param bool $ignoreCachedResult - use a remote connection, ignoring the cache
      */
-    private function getRemoteJsonWebKeySet(XUri $keysUri, string $clientId, bool $ignoreCachedResult = false) : ?JWKSet {
+    private function getRemoteJsonWebKeySet(XUri $keysUri, bool $ignoreCachedResult = false) : ?JWKSet {
         $jwks = null;
-        $keysUri = $keysUri->with(OAuthFlowService::PARAM_CLIENT_ID, $clientId);
         $this->logger->debug('Fetching JSON web key set (JWKS) from cached keys endpoint response...', [
             'Url' => $keysUri->toString()
         ]);
