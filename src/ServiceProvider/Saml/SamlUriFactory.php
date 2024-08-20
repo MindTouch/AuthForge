@@ -82,7 +82,7 @@ class SamlUriFactory implements SamlUriFactoryInterface {
      * @throws SamlCannotGenerateSignatureException
      * @throws SamlCannotLoadCryptoKeyException
      */
-    public function newAuthnRequestUri(XUri $returnUri) : XUri {
+    public function newAuthnRequestUri(XUri $returnUri, XMLSecurityKey $securityKey = XMLSecurityKey::RSA_SHA1) : XUri {
         $uri = $this->saml->getIdentityProviderSingleSignOnUri();
         $returnHref = $returnUri->toString();
         $id = $this->newId();
@@ -95,7 +95,7 @@ class SamlUriFactory implements SamlUriFactoryInterface {
         // handle signing
         if($this->saml->isAuthnRequestSignatureRequired()) {
             $signature = $this->buildRequestSignature($samlRequest, $returnHref);
-            $parameters['SigAlg'] = XMLSecurityKey::RSA_SHA1;
+            $parameters['SigAlg'] = $securityKey;
             $parameters['Signature'] = $signature;
         }
         $this->logger->debug('Sending AuthnRequest', [
