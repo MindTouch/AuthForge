@@ -24,7 +24,7 @@ use modethirteen\Crypto\ImportCryptoKeyPairFactory;
 
 class validateSignature_Test extends AbstractSamlTestCase {
 
-    const SIGNATURE_KEY = <<<TEXT
+    public const SIGNATURE_KEY = <<<TEXT
 -----BEGIN RSA PRIVATE KEY-----
 MIICXwIBAAKBgQCnCWkWWY/HjFe6y+6HWJ2QW2U6MTDoYDDZYmF63qDiLVqNM2Us
 COGMywL+eDAVTCKpPLKwj/4qf9sROXGLZXKDCg0bLrQEvlsPWN8t6MxWqLcG+ZIG
@@ -42,7 +42,7 @@ ABzMxrayevhKdEYa7pF+kYkgdK4smw35VWAYM5ExisqYW54=
 -----END RSA PRIVATE KEY-----
 TEXT;
 
-    const SIGNATURE_X509 = <<<TEXT
+    public const SIGNATURE_X509 = <<<TEXT
 -----BEGIN CERTIFICATE-----
 MIIDCTCCAnKgAwIBAgIBATANBgkqhkiG9w0BAQUFADBvMRQwEgYDVQQDEwtjYXBy
 aXphLmNvbTELMAkGA1UEBhMCVVMxETAPBgNVBAgTCFZpcmdpbmlhMRMwEQYDVQQH
@@ -66,7 +66,6 @@ TEXT;
 
     /**
      * @note (modethirteen, 20200110): messages were signed by a reputable third party using the verification keys loaded in this test case
-     * @return array
      */
     public static function message_Provider() : array {
         return [
@@ -86,7 +85,7 @@ TEXT;
 XML
             ],
             'Signed Response, Unsigned Assertion' => [
-                <<<XML
+                <<<XML_WRAP
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="pfxd959abca-486b-cd4a-1869-9e888634f241" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
   <ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -128,10 +127,11 @@ XML
     </saml:AttributeStatement>
   </saml:Assertion>
 </samlp:Response>
-XML
+XML_WRAP
+
             ],
             'Signed Response, Signed Assertion' => [
-                <<<XML
+                <<<XML_WRAP
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="pfx8e20ab2e-2ec9-9976-be79-57fab684b806" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
   <ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -177,10 +177,11 @@ XML
     </saml:AttributeStatement>
   </saml:Assertion>
 </samlp:Response>
-XML
+XML_WRAP
+
             ],
             'Unsigned Response, Signed Assertion' => [
-                <<<XML
+                <<<XML_WRAP
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_8e8dc5f69a98cc4c1ff3427e5ce34606fd672f91e6" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer>
   <samlp:Status>
@@ -222,7 +223,8 @@ XML
     </saml:AttributeStatement>
   </saml:Assertion>
 </samlp:Response>
-XML
+XML_WRAP
+
             ],
             'LogoutRequest' => [
                 <<<XML
@@ -257,7 +259,6 @@ XML
     /**
      * @dataProvider message_Provider
      * @test
-     * @param string $message
      * @throws CryptoKeyCannotParseCryptoKeyTextException
      * @throws CryptoKeyFactoryCannotConstructCryptoKeyException
      * @throws SamlDocumentSignatureValidationException

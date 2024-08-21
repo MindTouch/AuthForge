@@ -61,7 +61,6 @@ use Ramsey\Uuid\UuidFactoryInterface;
 class RemoteJsonWebKeysTest extends AbstractOAuthTestCase {
 
     /**
-     * @return array
      * @throws ResultParserContentExceedsMaxContentLengthException
      */
     public static function key_algo_remoteKeysContentType_remoteKeysCacheControl_cachedRemoteKeysResultLifespan_cachedRemoteKeysResult_Provider() : array {
@@ -163,12 +162,6 @@ class RemoteJsonWebKeysTest extends AbstractOAuthTestCase {
     /**
      * @dataProvider key_algo_remoteKeysContentType_remoteKeysCacheControl_cachedRemoteKeysResultLifespan_cachedRemoteKeysResult_Provider
      * @test
-     * @param JWK $key
-     * @param SignatureAlgorithm $algo
-     * @param string|null $remoteKeysContentType
-     * @param string|null $remoteKeysCacheControl
-     * @param int|null $cachedRemoteKeysResultLifespan
-     * @param mixed $remoteKeysResult
      * @throws InvalidDictionaryValueException
      * @throws JsonContentCannotSerializeArrayException
      * @throws MalformedUriException
@@ -180,7 +173,7 @@ class RemoteJsonWebKeysTest extends AbstractOAuthTestCase {
         ?string $remoteKeysContentType,
         ?string $remoteKeysCacheControl,
         ?int $cachedRemoteKeysResultLifespan,
-        $remoteKeysResult
+        mixed $remoteKeysResult
     ) : void {
 
         // request
@@ -227,9 +220,7 @@ class RemoteJsonWebKeysTest extends AbstractOAuthTestCase {
                     ->with(
                         static::equalTo('12345'),
                         static::isInstanceOf(Result::class),
-                        static::equalTo($cachedRemoteKeysResultLifespan !== null
-                            ? $cachedRemoteKeysResultLifespan
-                            : JsonWebKeySetCaching::DEFAULT_TTL
+                        static::equalTo($cachedRemoteKeysResultLifespan ?? JsonWebKeySetCaching::DEFAULT_TTL
                         )
                     )
                     ->willReturn(true);
@@ -264,9 +255,7 @@ class RemoteJsonWebKeysTest extends AbstractOAuthTestCase {
                 ->with(
                     static::equalTo('12345'),
                     static::isInstanceOf(Result::class),
-                    static::equalTo($cachedRemoteKeysResultLifespan !== null
-                        ? $cachedRemoteKeysResultLifespan
-                        : JsonWebKeySetCaching::DEFAULT_TTL
+                    static::equalTo($cachedRemoteKeysResultLifespan ?? JsonWebKeySetCaching::DEFAULT_TTL
                     )
                 )
                 ->willReturn(true);
@@ -346,7 +335,7 @@ class RemoteJsonWebKeysTest extends AbstractOAuthTestCase {
         }
         MockPlug::register(
             (new MockRequestMatcher(Plug::METHOD_GET,
-                $identityProviderJsonWebKeySetUri->with('client_id', $relyingPartyClientId)
+                $identityProviderJsonWebKeySetUri
             )),
             (new Result())
                 ->withStatus(200)
@@ -399,15 +388,15 @@ class RemoteJsonWebKeysTest extends AbstractOAuthTestCase {
         static::assertTrue(MockPlug::verifyAll());
         static::assertEquals('https://app.example.com/dashboard', $result->toString());
         static::assertNotNull($remoteKeysCacheKeyUri);
-        static::assertEquals($remoteKeysCacheKeyUri->toString(), $identityProviderJsonWebKeySetUri->with('client_id', $relyingPartyClientId)->toString());
+        static::assertEquals($remoteKeysCacheKeyUri->toString(), $identityProviderJsonWebKeySetUri->toString());
         static::assertCount(1, $events);
         $event = $events[0];
-        static::assertEquals(1531406335, $event->getDateTime()->getTimestamp());
+        static::assertEquals(1_531_406_335, $event->getDateTime()->getTimestamp());
         static::assertEquals(OpenIdConnectMiddlewareService::class, $event->getMiddlewareServiceName());
         static::assertEquals([
-            'iat' => 1531406335,
-            'nbf' => 1531406335,
-            'exp' => 1531409935,
+            'iat' => 1_531_406_335,
+            'nbf' => 1_531_406_335,
+            'exp' => 1_531_409_935,
             'iss' => 'plugh',
             'aud' => '0oafuv29cxTJWpZng0h7',
             'sub' => 'modethirteen',

@@ -70,12 +70,12 @@ use modethirteen\XArray\MutableXArray;
 class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface {
 
     #region reserved oidc params
-    const PARAM_ID_TOKEN_HINT = 'id_token_hint';
-    const PARAM_POST_LOGOUT_REDIRECT_URI = 'post_logout_redirect_uri';
+    public const PARAM_ID_TOKEN_HINT = 'id_token_hint';
+    public const PARAM_POST_LOGOUT_REDIRECT_URI = 'post_logout_redirect_uri';
     #endregion
 
     #region scopes
-    const SCOPE_OPENID = 'openid';
+    public const SCOPE_OPENID = 'openid';
     #endregion
 
     /**
@@ -97,43 +97,8 @@ class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface 
         ];
     }
 
-    /**
-     * @var OAuthConfigurationInterface
-     */
-    private $oauth;
-
-    /**
-     * @var JsonWebKeySetCachingInterface
-     */
-    private $jsonWebKeySetCaching;
-
-    /**
-     * @var ContextLoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var OpenIdConnectConfigurationInterface
-     */
-    private $oidc;
-
-    /**
-     * @var DateTimeInterface
-     */
-    private $dateTime;
-
-    public function __construct(
-        OAuthConfigurationInterface $oauth,
-        OpenIdConnectConfigurationInterface $oidc,
-        DateTimeInterface $dateTime,
-        JsonWebKeySetCachingInterface $jsonWebKeySetCaching,
-        ContextLoggerInterface $logger
-    ) {
-        $this->oauth = $oauth;
-        $this->oidc = $oidc;
-        $this->dateTime = $dateTime;
-        $this->jsonWebKeySetCaching = $jsonWebKeySetCaching;
-        $this->logger = $logger;
+    public function __construct(private OAuthConfigurationInterface $oauth, private OpenIdConnectConfigurationInterface $oidc, private DateTimeInterface $dateTime, private JsonWebKeySetCachingInterface $jsonWebKeySetCaching, private ContextLoggerInterface $logger)
+    {
     }
 
     /**
@@ -156,7 +121,7 @@ class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface 
         $jwks = null;
         $keysUri = $this->oidc->getIdentityProviderJsonWebKeySetUri();
         if($keysUri !== null) {
-            $jwks = $this->getRemoteJsonWebKeySet($keysUri, $clientId);
+            $jwks = $this->getRemoteJsonWebKeySet($keysUri);
         }
         if($jwks === null) {
 
@@ -190,9 +155,7 @@ class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface 
 
             // header checker: check for supported algos and JWS support
             new HeaderCheckerManager([
-                new AlgorithmChecker(array_map(function(SignatureAlgorithm $algo) : string {
-                    return $algo->name();
-                }, $algos)),
+                new AlgorithmChecker(array_map(fn(SignatureAlgorithm $algo): string => $algo->name(), $algos)),
             ], [
                 new JWSTokenSupport()
             ])
@@ -212,7 +175,7 @@ class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface 
                 $this->logger->warning('Verification failed, invalidating cached JSON web key set (JWKS)...');
 
                 // try one more time with remote source, and force a cache invalidation
-                $jwks = $this->getRemoteJsonWebKeySet($keysUri, $clientId, true);
+                $jwks = $this->getRemoteJsonWebKeySet($keysUri, true);
                 if($jwks === null) {
                     throw new OpenIdConnectMiddlewareServiceCannotLoadJsonWebKeySetException();
                 }
@@ -326,13 +289,10 @@ class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface 
 
     /**
      * @param XUri $keysUri - remote JWKS lookup service URL
-     * @param string $clientId - OAuth client ID
      * @param bool $ignoreCachedResult - use a remote connection, ignoring the cache
-     * @return JWKSet|null
      */
-    private function getRemoteJsonWebKeySet(XUri $keysUri, string $clientId, bool $ignoreCachedResult = false) : ?JWKSet {
+    private function getRemoteJsonWebKeySet(XUri $keysUri, bool $ignoreCachedResult = false) : ?JWKSet {
         $jwks = null;
-        $keysUri = $keysUri->with(OAuthFlowService::PARAM_CLIENT_ID, $clientId);
         $this->logger->debug('Fetching JSON web key set (JWKS) from cached keys endpoint response...', [
             'Url' => $keysUri->toString()
         ]);
@@ -393,8 +353,6 @@ class OpenIdConnectMiddlewareService implements OAuthMiddlewareServiceInterface 
     }
 
     /**
-     * @param XUri $uri
-     * @return Plug
      * @throws PlugUriHostRequiredException
      */
     private function newPlug(XUri $uri) : Plug {

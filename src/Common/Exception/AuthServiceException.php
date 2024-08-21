@@ -33,7 +33,6 @@ class AuthServiceException extends AuthInterpolatedException {
     }
 
     /**
-     * @param Throwable $e
      * @return static
      */
     public function withInnerException(Throwable $e) : object {
@@ -42,9 +41,6 @@ class AuthServiceException extends AuthInterpolatedException {
         return $instance;
     }
 
-    /**
-     * @return Throwable|null
-     */
     public function getInnerException() : ?Throwable {
         return $this->exception;
     }

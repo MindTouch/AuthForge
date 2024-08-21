@@ -42,21 +42,12 @@ class RedirectLogoutRequestHttpMessage extends AbstractHttpMessage implements Ht
         return true;
     }
 
-    /**
-     * @var array|null
-     */
-    private $nameIdData = null;
+    private ?array $nameIdData = null;
 
-    /**
-     * @return string
-     */
     public function getId() : string {
         return $this->document->documentElement->getAttribute('ID');
     }
 
-    /**
-     * @return string|null
-     */
     public function getIssuer() : ?string {
         $issuer = null;
         $issuerNodes = $this->document->query('/samlp:LogoutRequest/saml:Issuer');
@@ -67,7 +58,6 @@ class RedirectLogoutRequestHttpMessage extends AbstractHttpMessage implements Ht
     }
 
     /**
-     * @return string
      * @throws SamlCannotLoadCryptoKeyException
      * @throws SamlHttpMessageElementDecryptionAlgorithmMismatchException
      * @throws SamlHttpMessageElementDecryptionCannotLoadCipherFromEncryptedElement
@@ -82,9 +72,6 @@ class RedirectLogoutRequestHttpMessage extends AbstractHttpMessage implements Ht
         return $nameIdData['Value'];
     }
 
-    /**
-     * @return array
-     */
     public function getSessionIndexes() : array {
         $sessionIndexes = [];
         $sessionIndexNodes = $this->document->query('/samlp:LogoutRequest/samlp:SessionIndex');

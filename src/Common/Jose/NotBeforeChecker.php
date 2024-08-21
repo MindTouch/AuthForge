@@ -23,23 +23,8 @@ use Jose\Component\Checker\InvalidClaimException;
 class NotBeforeChecker implements ClaimChecker {
     private const CLAIM_NAME = 'nbf';
 
-    /**
-     * @var int
-     */
-    private $allowedTimeDrift;
-
-    /**
-     * @var DateTimeInterface
-     */
-    private $dateTime;
-
-    /**
-     * @param DateTimeInterface $dateTime
-     * @param int $allowedTimeDrift
-     */
-    public function __construct(DateTimeInterface $dateTime, int $allowedTimeDrift = 0) {
-        $this->dateTime = $dateTime;
-        $this->allowedTimeDrift = $allowedTimeDrift;
+    public function __construct(private DateTimeInterface $dateTime, private int $allowedTimeDrift = 0)
+    {
     }
 
     public function checkClaim($value) : void {

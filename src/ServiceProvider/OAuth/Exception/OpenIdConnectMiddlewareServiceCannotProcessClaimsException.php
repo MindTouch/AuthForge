@@ -21,18 +21,10 @@ use Jose\Component\Checker\InvalidClaimException;
 
 class OpenIdConnectMiddlewareServiceCannotProcessClaimsException extends OAuthException {
 
-    /**
-     * @param Exception $e
-     * @return OpenIdConnectMiddlewareServiceCannotProcessClaimsException
-     */
     public static function newFromException(Exception $e) : OpenIdConnectMiddlewareServiceCannotProcessClaimsException {
         return new self($e->getMessage(), null);
     }
 
-    /**
-     * @param InvalidClaimException $e
-     * @return OpenIdConnectMiddlewareServiceCannotProcessClaimsException
-     */
     public static function newFromInvalidClaimException(InvalidClaimException $e) : OpenIdConnectMiddlewareServiceCannotProcessClaimsException {
         return new self($e->getMessage(), $e->getClaim(), $e->getValue());
     }

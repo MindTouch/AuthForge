@@ -22,10 +22,7 @@ use modethirteen\XArray\JsonArray;
 
 class AssertionAttributeClaims extends AbstractClaims implements ClaimsInterface {
 
-    /**
-     * @var string|null
-     */
-    private $username = null;
+    private ?string $username = null;
 
     public function getUsername() : ?string {
         return $this->username;
@@ -56,7 +53,6 @@ class AssertionAttributeClaims extends AbstractClaims implements ClaimsInterface
     }
 
     /**
-     * @param string $nameId
      * @return static
      */
     public function withNameId(string $nameId) : object {

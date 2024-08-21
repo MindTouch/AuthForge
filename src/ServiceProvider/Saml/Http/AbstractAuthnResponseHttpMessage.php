@@ -59,15 +59,9 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
      */
     protected $decryptedDocument = null;
 
-    /**
-     * @var array|null
-     */
-    private $nameIdData = null;
+    private ?array $nameIdData = null;
 
-    /**
-     * @var array|null
-     */
-    private $statusData = null;
+    private ?array $statusData = null;
 
     /**
      * {@inheritDoc}
@@ -97,7 +91,7 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
     public function getAssertionId() : ?string {
         try {
             $domNodeList = $this->queryAssertion('/@ID');
-        } catch(Exception $e) {
+        } catch(Exception) {
             return null;
         }
         return (($domNodeList instanceof DOMNodeList) && $domNodeList->length > 0) ? $domNodeList->item(0)->textContent : null;
@@ -117,7 +111,6 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
 
     /**
      * {@inheritDoc}
-     * @return ClaimsInterface
      * @throws InvalidDictionaryValueException
      * @throws SamlCannotLoadCryptoKeyException
      * @throws SamlHttpMessageAuthnResponseAssertionDoesNotContainNameIdException
@@ -170,7 +163,6 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
 
     /**
      * {@inheritDoc}
-     * @return string
      * @throws SamlCannotLoadCryptoKeyException
      * @throws SamlHttpMessageAuthnResponseAssertionDoesNotContainNameIdException
      * @throws SamlHttpMessageElementDecryptionAlgorithmMismatchException
@@ -186,7 +178,6 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
 
     /**
      * {@inheritDoc}
-     * @return string|null
      * @throws SamlCannotLoadCryptoKeyException
      * @throws SamlHttpMessageAuthnResponseAssertionDoesNotContainNameIdException
      * @throws SamlHttpMessageElementDecryptionAlgorithmMismatchException
@@ -198,7 +189,7 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
      */
     public function getNameIdFormat() : ?string {
         $nameIdData = $this->getNameIdData();
-        return isset($nameIdData['Format']) ? $nameIdData['Format'] : null;
+        return $nameIdData['Format'] ?? null;
     }
 
     public function getSessionIndex() : ?string {
@@ -241,7 +232,7 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
      */
     public function getStatusMessage() : ?string {
         $data = $this->getStatusData();
-        return isset($data['StatusMessage']) ? $data['StatusMessage'] : null;
+        return $data['StatusMessage'] ?? null;
     }
 
     /**
@@ -282,7 +273,7 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
             $this->document->validateSchema();
 
             // check if the InResponseTo matches the ID of the AuthnRequest (optional)
-            $responseInResponseTo = $this->getInResponseToId() ? $this->getInResponseToId() : null;
+            $responseInResponseTo = $this->getInResponseToId() ?: null;
             if($requestId !== null && $responseInResponseTo !== null && $requestId !== $responseInResponseTo) {
                 throw new SamlHttpMessageValidationException('AuthnResponse/@InResponseTo does not match AuthnRequest/@ID', [
                     'InResponseTo' => $responseInResponseTo,
@@ -331,7 +322,7 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
             if($this->document->documentElement->hasAttribute('Destination')) {
                 $destination = $this->document->documentElement->getAttribute('Destination');
                 if(!StringEx::isNullOrEmpty($destination)) {
-                    if(strpos(rtrim($destination, '/'), rtrim($currentHref, '/')) === false) {
+                    if(!str_contains(rtrim($destination, '/'), rtrim($currentHref, '/'))) {
                         throw new SamlHttpMessageValidationException('AuthnResponse/@Destination does not match the current request URL', [
                             'Destination' => $destination,
                             'RequestUrl' => $currentHref
@@ -389,7 +380,7 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
                     }
                     if($scnData->hasAttribute('Recipient')) {
                         $recipient = $scnData->getAttribute('Recipient');
-                        if(!empty($recipient) && strpos(rtrim($recipient, '/'), rtrim($currentHref, '/')) === false) {
+                        if(!empty($recipient) && !str_contains(rtrim($recipient, '/'), rtrim($currentHref, '/'))) {
                             continue;
                         }
                     }
@@ -413,9 +404,6 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
         }
     }
 
-    /**
-     * @return bool
-     */
     protected function isDocumentEncrypted() : bool {
         return $this->decryptedDocument !== null;
     }
@@ -504,11 +492,6 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
         return $this->statusData;
     }
 
-    /**
-     * @param string $notBefore
-     * @param int $timestamp
-     * @return bool
-     */
     private function isValidNotBefore(string $notBefore, int $timestamp) : bool {
         $dateTime = DateTimeImmutableEx::fromISO8601($notBefore);
         if(!($dateTime instanceof DateTimeInterface)) {
@@ -517,11 +500,6 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
         return !($dateTime->getTimestamp() > $timestamp + $this->saml->getAllowedClockDrift());
     }
 
-    /**
-     * @param string $notOnOrAfter
-     * @param int $timestamp
-     * @return bool
-     */
     private function isValidNotOnOrAfter(string $notOnOrAfter, int $timestamp) : bool {
         $dateTime = DateTimeImmutableEx::fromISO8601($notOnOrAfter);
         if(!($dateTime instanceof DateTimeInterface)) {

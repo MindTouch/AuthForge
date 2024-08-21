@@ -35,33 +35,21 @@ use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 class Document extends DOMDocument {
-    const NS_SAML = 'urn:oasis:names:tc:SAML:2.0:assertion';
-    const NS_SAMLP = 'urn:oasis:names:tc:SAML:2.0:protocol';
-    const NS_SOAP = 'http://schemas.xmlsoap.org/soap/envelope/';
-    const NS_MD = 'urn:oasis:names:tc:SAML:2.0:metadata';
-    const NS_XS = 'http://www.w3.org/2001/XMLSchema';
-    const NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance';
-    const NS_XENC = 'http://www.w3.org/2001/04/xmlenc#';
-    const NS_DS = 'http://www.w3.org/2000/09/xmldsig#';
-
-    /**
-     * @var array<string, string>
-     */
-    private $namespaces;
-
-    /**
-     * @var string
-     */
-    private $xsd;
+    public const NS_SAML = 'urn:oasis:names:tc:SAML:2.0:assertion';
+    public const NS_SAMLP = 'urn:oasis:names:tc:SAML:2.0:protocol';
+    public const NS_SOAP = 'http://schemas.xmlsoap.org/soap/envelope/';
+    public const NS_MD = 'urn:oasis:names:tc:SAML:2.0:metadata';
+    public const NS_XS = 'http://www.w3.org/2001/XMLSchema';
+    public const NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance';
+    public const NS_XENC = 'http://www.w3.org/2001/04/xmlenc#';
+    public const NS_DS = 'http://www.w3.org/2000/09/xmldsig#';
 
     /**
      * @param string $xsd - xsd path for validation
      * @param array<string, string> $namespaces
      */
-    final public function __construct(string $xsd, array $namespaces = []) {
+    final public function __construct(private string $xsd, private array $namespaces = []) {
         parent::__construct();
-        $this->xsd = $xsd;
-        $this->namespaces = $namespaces;
     }
 
     /**
@@ -123,7 +111,6 @@ class Document extends DOMDocument {
     }
 
     /**
-     * @param CryptoKeyInterface $certificate
      * @throws SamlDocumentSignatureValidationException
      */
     public function validateSignature(CryptoKeyInterface $certificate) : void {

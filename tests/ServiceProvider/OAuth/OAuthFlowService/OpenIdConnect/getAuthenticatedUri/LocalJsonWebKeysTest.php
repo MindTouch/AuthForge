@@ -53,9 +53,6 @@ use Ramsey\Uuid\UuidFactoryInterface;
 
 class LocalJsonWebKeysTest extends AbstractOAuthTestCase {
 
-    /**
-     * @return array
-     */
     public static function key_algo_Provider() : array {
         $params = [];
         foreach(self::getSignatureKeyObjects() as $name => $object) {
@@ -70,8 +67,6 @@ class LocalJsonWebKeysTest extends AbstractOAuthTestCase {
     /**
      * @dataProvider key_algo_Provider
      * @test
-     * @param JWK $key
-     * @param SignatureAlgorithm $algo
      * @throws InvalidDictionaryValueException
      * @throws JsonContentCannotSerializeArrayException
      * @throws MalformedUriException
@@ -203,12 +198,12 @@ class LocalJsonWebKeysTest extends AbstractOAuthTestCase {
         static::assertEquals('https://app.example.com/dashboard', $result->toString());
         static::assertCount(1, $events);
         $event = $events[0];
-        static::assertEquals(1531406335, $event->getDateTime()->getTimestamp());
+        static::assertEquals(1_531_406_335, $event->getDateTime()->getTimestamp());
         static::assertEquals(OpenIdConnectMiddlewareService::class, $event->getMiddlewareServiceName());
         static::assertEquals([
-            'iat' => 1531406335,
-            'nbf' => 1531406335,
-            'exp' => 1531409935,
+            'iat' => 1_531_406_335,
+            'nbf' => 1_531_406_335,
+            'exp' => 1_531_409_935,
             'iss' => 'plugh',
             'aud' => '0oafuv29cxTJWpZng0h7',
             'sub' => 'modethirteen',

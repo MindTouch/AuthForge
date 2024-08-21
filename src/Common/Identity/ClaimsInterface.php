@@ -20,39 +20,21 @@ use modethirteen\TypeEx\DictionaryInterface;
 
 interface ClaimsInterface extends DictionaryInterface {
 
-    /**
-     * @param string $name
-     * @return string|null
-     */
     public function getClaim(string $name) : ?string;
 
-    /**
-     * @param string $name
-     * @return array|null
-     */
     public function getClaims(string $name) : ?array;
 
-    /**
-     * @return string|null
-     */
     public function getUsername() : ?string;
 
-    /**
-     * @return string
-     */
     public function toJson() : string;
 
     /**
      * return claim collection that is safe to store by removing potential replay attack data
-     *
-     * @return array
      */
     public function toSecureArray() : array;
 
     /**
      * return claim collection that is safe to store by removing potential replay attack data
-     *
-     * @return string
      */
     public function toSecureJson() : string;
 }

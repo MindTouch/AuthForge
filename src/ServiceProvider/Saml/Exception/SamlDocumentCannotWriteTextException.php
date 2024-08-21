@@ -21,21 +21,12 @@ use modethirteen\AuthForge\ServiceProvider\Saml\Document;
 class SamlDocumentCannotWriteTextException extends SamlException {
 
     /**
-     * @var Document
-     */
-    private $document;
-
-    /**
      * @param Document $document
      */
-    public function __construct(Document $document) {
+    public function __construct(private Document $document) {
         parent::__construct('DOM structure cannot be written to XML text');
-        $this->document = $document;
     }
 
-    /**
-     * @return Document
-     */
     public function getDocument() : Document {
         return $this->document;
     }

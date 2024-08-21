@@ -41,9 +41,6 @@ use Ramsey\Uuid\UuidInterface;
 
 class getLogoutUri_Test extends AbstractSamlTestCase {
 
-    /**
-     * @return array
-     */
     public static function isLogoutRequestSignatureRequired_isNameIdEncryptionRequired_nameIdFormat_sessionIndex_expected_Provider() : array {
         return [
             'With signature and with NameID encryption and with NameID format and with session index' => [true, true, HttpMessageInterface::NAMEID_UNSPECIFIED, 'foo', <<<XML
@@ -324,11 +321,6 @@ XML
     /**
      * @dataProvider isLogoutRequestSignatureRequired_isNameIdEncryptionRequired_nameIdFormat_sessionIndex_expected_Provider
      * @test
-     * @param bool $isLogoutRequestSignatureRequired
-     * @param bool $isNameIdEncryptionRequired
-     * @param string|null $nameIdFormat
-     * @param string|null $sessionIndex
-     * @param string $expected
      * @throws CryptoKeyCannotParseCryptoKeyTextException
      * @throws CryptoKeyFactoryCannotConstructCryptoKeyException
      * @throws MalformedUriException

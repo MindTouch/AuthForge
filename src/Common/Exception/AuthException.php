@@ -20,23 +20,10 @@ use Exception;
 
 class AuthException extends Exception {
 
-    /**
-     * @var array
-     */
-    private $context;
-
-    /**
-     * @param string $message
-     * @param array $context
-     */
-    public function __construct(string $message, array $context = []) {
+    public function __construct(string $message, private array $context = []) {
         parent::__construct($message);
-        $this->context = $context;
     }
 
-    /**
-     * @return array
-     */
     public function getContext() : array {
         return $this->context;
     }

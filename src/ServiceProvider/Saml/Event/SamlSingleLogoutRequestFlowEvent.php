@@ -23,24 +23,12 @@ use modethirteen\AuthForge\Common\Utility\ArrayEx;
 class SamlSingleLogoutRequestFlowEvent extends AbstractEvent  {
 
     /**
-     * @var string
-     */
-    private $username;
-
-    /**
-     * @var string[]
-     */
-    private $sessionIndexes;
-
-    /**
      * @param DateTimeInterface $dateTime
      * @param string $username
      * @param string[] $sessionIndexes
      */
-    public function __construct(DateTimeInterface $dateTime, string $username, array $sessionIndexes) {
+    public function __construct(DateTimeInterface $dateTime, private string $username, private array $sessionIndexes) {
         parent::__construct($dateTime);
-        $this->username = $username;
-        $this->sessionIndexes = $sessionIndexes;
     }
 
     /**
@@ -50,9 +38,6 @@ class SamlSingleLogoutRequestFlowEvent extends AbstractEvent  {
         return $this->sessionIndexes;
     }
 
-    /**
-     * @return string
-     */
     public function getUsername() : string {
         return $this->username;
     }

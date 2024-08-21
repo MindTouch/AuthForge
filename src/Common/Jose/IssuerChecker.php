@@ -22,16 +22,8 @@ use Jose\Component\Checker\InvalidClaimException;
 class IssuerChecker implements ClaimChecker {
     private const CLAIM_NAME = 'iss';
 
-    /**
-     * @var string
-     */
-    private $issuer;
-
-    /**
-     * @param string $issuer
-     */
-    public function __construct(string $issuer) {
-        $this->issuer = $issuer;
+    public function __construct(private string $issuer)
+    {
     }
 
     public function checkClaim($value) : void {

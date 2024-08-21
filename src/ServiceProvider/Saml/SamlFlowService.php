@@ -54,50 +54,26 @@ class SamlFlowService implements AuthFlowServiceInterface {
     use RelayStateAuthFlowServiceTrait;
 
     /**
-     * @var DateTimeInterface
-     */
-    private $dateTime;
-
-    /**
-     * @var DocumentFactoryInterface
-     */
-    private $documentFactory;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @var ContextLoggerInterface
      */
     private $logger;
 
     /**
-     * @var SamlConfigurationInterface
-     */
-    private $saml;
-
-    /**
      * @var SamlUriFactoryInterface
      */
-    private $uriFactory;
+    private \modethirteen\AuthForge\ServiceProvider\Saml\SamlUriFactory $uriFactory;
 
     public function __construct(
-        SamlConfigurationInterface $saml,
-        DateTimeInterface $dateTime,
+        private SamlConfigurationInterface $saml,
+        private DateTimeInterface $dateTime,
         ContextLoggerInterface $logger,
         UuidFactoryInterface $uuidFactory,
-        EventDispatcherInterface $eventDispatcher,
-        DocumentFactoryInterface $documentFactory,
+        private EventDispatcherInterface $eventDispatcher,
+        private DocumentFactoryInterface $documentFactory,
         SessionIndexRegistryInterface $sessionIndexRegistry
     ) {
-        $this->saml = $saml;
-        $this->dateTime = $dateTime;
         $this->logger = $logger;
-        $this->eventDispatcher = $eventDispatcher;
         $this->uriFactory = new SamlUriFactory($saml, $dateTime, $logger, $uuidFactory, $sessionIndexRegistry);
-        $this->documentFactory = $documentFactory;
     }
 
     /**
@@ -172,7 +148,7 @@ class SamlFlowService implements AuthFlowServiceInterface {
         $formats = $this->saml->getNameIdFormats();
         if($this->saml->isNameIdFormatEnforcementEnabled() && !in_array($format, $formats)) {
             throw new SamlFlowServiceException('Could not find valid NameID format in AuthnResponse', [
-                'NameIdFormat' => $format === null ? '' : $format,
+                'NameIdFormat' => $format ?? '',
                 'AllowedNameIdFormats' => $formats
             ]);
         }

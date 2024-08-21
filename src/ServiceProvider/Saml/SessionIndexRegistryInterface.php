@@ -18,35 +18,13 @@ namespace modethirteen\AuthForge\ServiceProvider\Saml;
 
 interface SessionIndexRegistryInterface {
 
-    /**
-     * @param string $nameId
-     * @param string $sessionIndex
-     * @return bool
-     */
     public function dirtySessionIndex(string $nameId, string $sessionIndex) : bool;
 
-    /**
-     * @param string $nameId
-     * @return string|null
-     */
     public function getSessionIndex(string $nameId) : ?string;
 
-    /**
-     * @param string $nameId
-     * @return bool
-     */
     public function isSessionIndexDirty(string $nameId) : bool;
 
-    /**
-     * @param string $nameId
-     * @return bool
-     */
     public function removeSessionIndex(string $nameId) : bool;
 
-    /**
-     * @param string $nameId
-     * @param string $sessionIndex
-     * @return bool
-     */
     public function setSessionIndex(string $nameId, string $sessionIndex) : bool;
 }

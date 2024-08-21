@@ -41,84 +41,35 @@ use Ramsey\Uuid\UuidFactoryInterface;
 class OAuthFlowService implements AuthFlowServiceInterface {
 
     #region reserved oauth params
-    const PARAM_CLIENT_ASSERTION = 'client_assertion';
-    const PARAM_CLIENT_ASSERTION_TYPE = 'client_assertion_type';
-    const PARAM_CLIENT_ID = 'client_id';
-    const PARAM_CLIENT_SECRET = 'client_secret';
-    const PARAM_CODE = 'code';
-    const PARAM_ERROR = 'error';
-    const PARAM_ERROR_DESCRIPTION = 'error_description';
-    const PARAM_GRANT_TYPE = 'grant_type';
-    const PARAM_REDIRECT_URI = 'redirect_uri';
-    const PARAM_RESPONSE_TYPE = 'response_type';
-    const PARAM_SCOPE = 'scope';
-    const PARAM_STATE = 'state';
+    public const PARAM_CLIENT_ASSERTION = 'client_assertion';
+    public const PARAM_CLIENT_ASSERTION_TYPE = 'client_assertion_type';
+    public const PARAM_CLIENT_ID = 'client_id';
+    public const PARAM_CLIENT_SECRET = 'client_secret';
+    public const PARAM_CODE = 'code';
+    public const PARAM_ERROR = 'error';
+    public const PARAM_ERROR_DESCRIPTION = 'error_description';
+    public const PARAM_GRANT_TYPE = 'grant_type';
+    public const PARAM_REDIRECT_URI = 'redirect_uri';
+    public const PARAM_RESPONSE_TYPE = 'response_type';
+    public const PARAM_SCOPE = 'scope';
+    public const PARAM_STATE = 'state';
     #endregion
 
     #region session state
-    const SESSION_OAUTH_HREF = 'OAuth/href';
-    const SESSION_OAUTH_STATE = 'OAuth/state';
+    public const SESSION_OAUTH_HREF = 'OAuth/href';
+    public const SESSION_OAUTH_STATE = 'OAuth/state';
     #endregion
 
     #region token auth
-    const TOKEN_AUTH_METHOD_CLIENT_SECRET_BASIC = 'client_secret_basic';
-    const TOKEN_AUTH_METHOD_CLIENT_SECRET_POST = 'client_secret_post';
-    const TOKEN_AUTH_METHOD_CLIENT_SECRET_JWT = 'client_secret_jwt';
+    public const TOKEN_AUTH_METHOD_CLIENT_SECRET_BASIC = 'client_secret_basic';
+    public const TOKEN_AUTH_METHOD_CLIENT_SECRET_POST = 'client_secret_post';
+    public const TOKEN_AUTH_METHOD_CLIENT_SECRET_JWT = 'client_secret_jwt';
     #endregion
 
-    const PLUG_TIMEOUT = 30;
+    public const PLUG_TIMEOUT = 30;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var ContextLoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var OAuthMiddlewareServiceInterface
-     */
-    private $middlewareService;
-
-    /**
-     * @var OAuthConfigurationInterface
-     */
-    private $oauth;
-
-    /**
-     * @var MutableXArray
-     */
-    private $sessionStorage;
-
-    /**
-     * @var DateTimeInterface
-     */
-    private $dateTime;
-
-    /**
-     * @var UuidFactoryInterface
-     */
-    private $uuidFactory;
-
-    public function __construct(
-        OAuthConfigurationInterface $oauth,
-        DateTimeInterface $dateTime,
-        ContextLoggerInterface $logger,
-        OAuthMiddlewareServiceInterface $middlewareService,
-        EventDispatcherInterface $eventDispatcher,
-        UuidFactoryInterface $uuidFactory,
-        MutableXArray $sessionStorage
-    ) {
-        $this->oauth = $oauth;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
-        $this->middlewareService = $middlewareService;
-        $this->dateTime = $dateTime;
-        $this->uuidFactory = $uuidFactory;
-        $this->sessionStorage = $sessionStorage;
+    public function __construct(private OAuthConfigurationInterface $oauth, private DateTimeInterface $dateTime, private ContextLoggerInterface $logger, private OAuthMiddlewareServiceInterface $middlewareService, private EventDispatcherInterface $eventDispatcher, private UuidFactoryInterface $uuidFactory, private MutableXArray $sessionStorage)
+    {
     }
 
     /**
@@ -148,7 +99,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
             ]);
         }
         $this->logger->addContextHandler(function(MutableXArray $context) use ($state) : void {
-            $context->setVal('State', $state !== null ? $state : 'none');
+            $context->setVal('State', $state ?? 'none');
         });
         $code = StringEx::stringify($params->get(self::PARAM_CODE));
         if(StringEx::isNullOrEmpty($code) && $params->get(self::PARAM_ERROR) !== null) {
@@ -169,31 +120,24 @@ class OAuthFlowService implements AuthFlowServiceInterface {
         $clientId = $this->oauth->getRelyingPartyClientId();
         $clientSecret = $this->oauth->getRelyingPartyClientSecret();
         try {
-            switch($this->oauth->getIdentityProviderTokenClientAuthenticationMethod()) {
-                case self::TOKEN_AUTH_METHOD_CLIENT_SECRET_POST:
-                    $tokenResult = $this->newPlug($tokenUri)
-                        ->withResultParser(new JsonParser())
-                        ->post(new UrlEncodedFormDataContent(array_merge([
-                            self::PARAM_CLIENT_ID => $clientId,
-                            self::PARAM_CLIENT_SECRET => $clientSecret
-                        ], $tokenFormDataParameterValuePairs)));
-                    break;
-                case self::TOKEN_AUTH_METHOD_CLIENT_SECRET_JWT:
-                    $tokenResult = $this->newPlug($tokenUri)
-                        ->withResultParser(new JsonParser())
-                        ->post(new UrlEncodedFormDataContent(array_merge([
-                            self::PARAM_CLIENT_ASSERTION => $this->getOAuthClientAssertion($clientId, $clientSecret),
-                            self::PARAM_CLIENT_ASSERTION_TYPE => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
-                        ], $tokenFormDataParameterValuePairs)));
-                    break;
-                case self::TOKEN_AUTH_METHOD_CLIENT_SECRET_BASIC:
-                default:
-                    $tokenResult = $this->newPlug($tokenUri)
-                        ->withCredentials($clientId, $clientSecret)
-                        ->withResultParser(new JsonParser())
-                        ->post(new UrlEncodedFormDataContent($tokenFormDataParameterValuePairs));
-                    break;
-            }
+            $tokenResult = match ($this->oauth->getIdentityProviderTokenClientAuthenticationMethod()) {
+                self::TOKEN_AUTH_METHOD_CLIENT_SECRET_POST => $this->newPlug($tokenUri)
+                    ->withResultParser(new JsonParser())
+                    ->post(new UrlEncodedFormDataContent(array_merge([
+                        self::PARAM_CLIENT_ID => $clientId,
+                        self::PARAM_CLIENT_SECRET => $clientSecret
+                    ], $tokenFormDataParameterValuePairs))),
+                self::TOKEN_AUTH_METHOD_CLIENT_SECRET_JWT => $this->newPlug($tokenUri)
+                    ->withResultParser(new JsonParser())
+                    ->post(new UrlEncodedFormDataContent(array_merge([
+                        self::PARAM_CLIENT_ASSERTION => $this->getOAuthClientAssertion($clientId, $clientSecret),
+                        self::PARAM_CLIENT_ASSERTION_TYPE => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+                    ], $tokenFormDataParameterValuePairs))),
+                default => $this->newPlug($tokenUri)
+                    ->withCredentials($clientId, $clientSecret)
+                    ->withResultParser(new JsonParser())
+                    ->post(new UrlEncodedFormDataContent($tokenFormDataParameterValuePairs)),
+            };
         } catch(
             InvalidDictionaryValueException |
             PlugUriHostRequiredException |
@@ -225,7 +169,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
 
         // follow return uri
         $returnUri = XUri::tryParse($returnHref);
-        return $returnUri !== null ? $returnUri : $this->oauth->getDefaultReturnUri();
+        return $returnUri ?? $this->oauth->getDefaultReturnUri();
     }
 
     public function getLoginUri(XUri $returnUri, XMLSecurityKey $securityKey = XMLSecurityKey::RSA_SHA1) : XUri {
@@ -267,9 +211,6 @@ class OAuthFlowService implements AuthFlowServiceInterface {
     }
 
     /**
-     * @param string $clientId
-     * @param string $clientSecret
-     * @return string
      * @throws InvalidDictionaryValueException
      */
     private function getOAuthClientAssertion(string $clientId, string $clientSecret) : string {
@@ -294,8 +235,6 @@ class OAuthFlowService implements AuthFlowServiceInterface {
     }
 
     /**
-     * @param XUri $uri
-     * @return Plug
      * @throws PlugUriHostRequiredException
      */
     private function newPlug(XUri $uri) : Plug {

@@ -30,13 +30,8 @@ use RobRichards\XMLSecLibs\XMLSecEnc;
 
 class DocumentFactory implements DocumentFactoryInterface {
 
-    /**
-     * @var DocumentSchemaResolverInterface
-     */
-    private $resolver;
-
-    public function __construct(DocumentSchemaResolverInterface $resolver) {
-        $this->resolver = $resolver;
+    public function __construct(private DocumentSchemaResolverInterface $resolver)
+    {
     }
 
     /**
@@ -121,10 +116,7 @@ class DocumentFactory implements DocumentFactoryInterface {
     }
 
     /**
-     * @param string|null $xml
-     * @param string $schema
      * @param array<string, string> $namespaces
-     * @return Document
      * @throws SamlDocumentCannotLoadTextException
      * @throws SamlDocumentEntityNotAllowedException
      */

@@ -29,9 +29,6 @@ use RobRichards\XMLSecLibs\XMLSecurityKey;
 trait RedirectHttpMessageSignatureTrait {
 
     /**
-     * @param CryptoKeyInterface $certificate
-     * @param ServerRequestEx $request
-     * @return bool
      * @throws SamlCannotLoadCryptoKeyException
      * @throws MalformedUriException
      * @throws ServerRequestInterfaceParsedBodyException

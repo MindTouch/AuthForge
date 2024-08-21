@@ -28,10 +28,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class ServerRequestEx {
 
-    /**
-     * @var XArray|null
-     */
-    private $body = null;
+    private ?\modethirteen\XArray\XArray $body = null;
 
     /**
      * @var Closure
@@ -39,22 +36,14 @@ class ServerRequestEx {
     private $bodyParser;
 
     /**
-     * @var ServerRequestInterface
-     */
-    private $instance;
-
-    /**
      * @note ServerRequestInterface doesn't really help us understand if this is a application/x-www-form-urlencoded body, so a callback will ensure it is serialized to an array type
-     * @param ServerRequestInterface $instance
      * @param Closure $bodyParser - <$bodyParser(ServerRequestInterface $instance) : array>
      */
-    public function __construct(ServerRequestInterface $instance, Closure $bodyParser) {
-        $this->instance = $instance;
+    public function __construct(private ServerRequestInterface $instance, Closure $bodyParser) {
         $this->bodyParser = $bodyParser;
     }
 
     /**
-     * @return XArray
      * @throws ServerRequestInterfaceParsedBodyException
      */
     public function getBody() : XArray {
@@ -72,8 +61,6 @@ class ServerRequestEx {
     /**
      * Look for parameter in POST content body then fallback to query parameters
      *
-     * @param string $param
-     * @return string|null
      * @throws ServerRequestInterfaceParsedBodyException
      */
     public function getParam(string $param) : ?string {
@@ -86,24 +73,17 @@ class ServerRequestEx {
         return $this->getQueryParams()->get($param);
     }
 
-    /**
-     * @return IQueryParams
-     */
     public function getQueryParams() : IQueryParams {
         return QueryParams::newFromArray($this->instance->getQueryParams());
     }
 
     /**
-     * @return XUri
      * @throws MalformedUriException
      */
     public function getUri() : XUri {
         return XUri::newFromString(StringEx::stringify($this->instance->getUri()));
     }
 
-    /**
-     * @return bool
-     */
     public function isPost() : bool {
         return (new StringEx(
             StringEx::stringify($this->instance->getMethod())

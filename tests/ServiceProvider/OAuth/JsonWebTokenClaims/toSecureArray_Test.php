@@ -32,9 +32,9 @@ class toSecureArray_Test extends AbstractOAuthTestCase {
 
         // arrange
         $claims = new JsonWebTokenClaims();
-        $claims->set('iat', 1531406335);
-        $claims->set('nbf', 1531406335);
-        $claims->set('exp', 1531409935);
+        $claims->set('iat', 1_531_406_335);
+        $claims->set('nbf', 1_531_406_335);
+        $claims->set('exp', 1_531_409_935);
         $claims->set('iss', 'plugh');
         $claims->set('aud', '0oafuv29cxTJWpZng0h7');
         $claims->set('sub', 'modethirteen');

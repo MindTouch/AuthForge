@@ -24,27 +24,10 @@ use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use modethirteen\AuthForge\Common\Identity\ClaimsInterface;
 
-class JsonWebSignature {
+class JsonWebSignature implements \Stringable {
 
-    /**
-     * @var Algorithm
-     */
-    private $algo;
-
-    /**
-     * @var ClaimsInterface
-     */
-    private $claims;
-
-    /**
-     * @var JWK
-     */
-    private $key;
-
-    public function __construct(ClaimsInterface $claims, JWK $key, Algorithm $algo) {
-        $this->claims = $claims;
-        $this->key = $key;
-        $this->algo = $algo;
+    public function __construct(private ClaimsInterface $claims, private JWK $key, private Algorithm $algo)
+    {
     }
 
     public function __toString() : string {

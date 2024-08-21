@@ -23,22 +23,8 @@ use modethirteen\Crypto\CryptoKeyInterface;
 
 class SamlCertificateService implements SamlCertificateServiceInterface {
 
-    /**
-     * @var ContextLoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var SamlConfigurationInterface
-     */
-    private $saml;
-
-    public function __construct(
-        SamlConfigurationInterface $saml,
-        ContextLoggerInterface $logger
-    ) {
-        $this->saml = $saml;
-        $this->logger = $logger;
+    public function __construct(private SamlConfigurationInterface $saml, private ContextLoggerInterface $logger)
+    {
     }
 
     /**

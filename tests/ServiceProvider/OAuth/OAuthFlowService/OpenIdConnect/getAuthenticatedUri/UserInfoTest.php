@@ -57,9 +57,6 @@ use Ramsey\Uuid\UuidFactoryInterface;
 
 class UserInfoTest extends AbstractOAuthTestCase {
 
-    /**
-     * @return array
-     */
     public static function userInfoClaimNames_Provider() : array {
         $params = [];
         foreach([
@@ -79,7 +76,6 @@ class UserInfoTest extends AbstractOAuthTestCase {
     /**
      * @dataProvider userInfoClaimNames_Provider
      * @test
-     * @param array $userInfoClaimNames
      * @throws InvalidDictionaryValueException
      * @throws JsonContentCannotSerializeArrayException
      * @throws MalformedUriException
@@ -129,9 +125,7 @@ class UserInfoTest extends AbstractOAuthTestCase {
             ->willReturn(null);
 
         /** @var CacheInterface $cache */
-        $caching = new JsonWebKeySetCaching($cache, function() {
-            return '12345';
-        });
+        $caching = new JsonWebKeySetCaching($cache, fn() => '12345');
 
         // oauth configuration
         $oauth = $this->newMock(OAuthConfigurationInterface::class);
@@ -270,12 +264,12 @@ class UserInfoTest extends AbstractOAuthTestCase {
         static::assertEquals('https://app.example.com/dashboard', $result->toString());
         static::assertCount(1, $events);
         $event = $events[0];
-        static::assertEquals(1531406335, $event->getDateTime()->getTimestamp());
+        static::assertEquals(1_531_406_335, $event->getDateTime()->getTimestamp());
         static::assertEquals(OpenIdConnectMiddlewareService::class, $event->getMiddlewareServiceName());
         static::assertEquals([
-            'iat' => 1531406335,
-            'nbf' => 1531406335,
-            'exp' => 1531409935,
+            'iat' => 1_531_406_335,
+            'nbf' => 1_531_406_335,
+            'exp' => 1_531_409_935,
             'iss' => 'plugh',
             'aud' => '0oafuv29cxTJWpZng0h7',
             'sub' => 'modethirteen',

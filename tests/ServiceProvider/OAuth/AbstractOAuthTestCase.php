@@ -36,12 +36,6 @@ use Ramsey\Uuid\UuidFactoryInterface;
 abstract class AbstractOAuthTestCase extends AbstractTestCase {
 
     /**
-     * @param string $audience
-     * @param string $clientId
-     * @param string $clientSecret
-     * @param DateTimeInterface $dateTime
-     * @param UuidFactoryInterface $uuidFactory
-     * @return JsonWebSignature
      * @throws InvalidDictionaryValueException
      */
     protected static function getTokenAuthenticationClientAssertionSignature(

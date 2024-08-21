@@ -22,12 +22,8 @@ use modethirteen\Http\XUri;
 interface AuthFlowServiceInterface {
 
     // value added to the current time in time condition validations
-    const ALLOWED_CLOCK_DRIFT = 180;
+    public const ALLOWED_CLOCK_DRIFT = 180;
 
-    /**
-     * @param ServerRequestEx $request
-     * @return XUri
-     */
     public function getAuthenticatedUri(ServerRequestEx $request) : XUri;
 
     /**
@@ -39,8 +35,6 @@ interface AuthFlowServiceInterface {
 
     /**
      * @param string $id - user identifier for downstream identity provider
-     * @param XUri $returnUri
-     * @return XUri|null
      */
     public function getLogoutUri(string $id, XUri $returnUri) : ?XUri;
 }

@@ -22,20 +22,15 @@ use modethirteen\TypeEx\StringEx;
 class LoggerStringEx {
 
     /**
-     * @param string $message
      * @param array<string|int, mixed> $context
-     * @return string
      */
     public static function interpolate(string $message, array $context) : string {
         $replacements = new StringDictionary();
         foreach($context as $key => $value) {
             $key = StringEx::stringify($key);
             $replacements->set($key, StringEx::stringify($value,
-                function() use ($key) : string {
-
-                    // collections and objects are not supported in logging interpolation, return the original variable
-                    return '{{' . trim($key) . '}}';
-                })
+                fn(): string => // collections and objects are not supported in logging interpolation, return the original variable
+'{{' . trim($key) . '}}')
             );
         }
         return (new StringEx($message))->interpolate($replacements)->toString();

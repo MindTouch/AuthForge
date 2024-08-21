@@ -21,9 +21,6 @@ use modethirteen\XArray\JsonArray;
 
 class SanitizedJsonWebKeySetArray extends JsonArray {
 
-    /**
-     * @param JWKSet $jwks
-     */
     public function __construct(JWKSet $jwks) {
         $keys = [];
         foreach($jwks->all() as $key) {

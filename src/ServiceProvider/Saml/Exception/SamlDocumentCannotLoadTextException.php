@@ -19,21 +19,12 @@ namespace modethirteen\AuthForge\ServiceProvider\Saml\Exception;
 class SamlDocumentCannotLoadTextException extends SamlException {
 
     /**
-     * @var string
-     */
-    private $text;
-
-    /**
      * @param string $text
      */
-    public function __construct(string $text) {
+    public function __construct(private string $text) {
         parent::__construct('XML text cannot be parsed into a valid DOM structure');
-        $this->text = $text;
     }
 
-    /**
-     * @return string
-     */
     public function getText() : string {
         return $this->text;
     }

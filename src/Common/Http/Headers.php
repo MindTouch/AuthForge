@@ -17,5 +17,5 @@
 namespace modethirteen\AuthForge\Common\Http;
 
 class Headers extends \modethirteen\Http\Headers {
-    const HEADER_CACHE_CONTROL = 'Cache-Control';
+    public const HEADER_CACHE_CONTROL = 'Cache-Control';
 }

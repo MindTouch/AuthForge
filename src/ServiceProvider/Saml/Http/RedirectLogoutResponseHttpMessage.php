@@ -35,16 +35,10 @@ class RedirectLogoutResponseHttpMessage extends AbstractHttpMessage implements H
         return true;
     }
 
-    /**
-     * @return string
-     */
     public function getId() : string {
         return $this->document->documentElement->getAttribute('ID');
     }
 
-    /**
-     * @return string
-     */
     public function getInResponseToId() : string {
         return $this->document->documentElement->getAttribute('InResponseTo');
     }
@@ -93,7 +87,7 @@ class RedirectLogoutResponseHttpMessage extends AbstractHttpMessage implements H
             $this->document->validateSchema();
 
             // check if the InResponseTo matches the ID of the LogoutRequest (optional)
-            $responseInResponseTo = $this->getInResponseToId() ? $this->getInResponseToId() : null;
+            $responseInResponseTo = $this->getInResponseToId() ?: null;
             if($requestId !== null && $responseInResponseTo !== null && $requestId !== $responseInResponseTo) {
                 throw new SamlHttpMessageValidationException('LogoutResponse/@InResponseTo does not match AuthnRequest/@ID', [
                     'InResponseTo' => $responseInResponseTo,

@@ -29,7 +29,7 @@ use modethirteen\Http\XUri;
 class isValidSignedMessage_Test extends AbstractSamlTestCase {
     use RedirectHttpMessageSignatureTrait;
 
-    const KEY_IDP_PRIVATE = <<<TEXT
+    public const KEY_IDP_PRIVATE = <<<TEXT
 -----BEGIN RSA PRIVATE KEY-----
 MIICXwIBAAKBgQCnCWkWWY/HjFe6y+6HWJ2QW2U6MTDoYDDZYmF63qDiLVqNM2Us
 COGMywL+eDAVTCKpPLKwj/4qf9sROXGLZXKDCg0bLrQEvlsPWN8t6MxWqLcG+ZIG
@@ -47,7 +47,7 @@ ABzMxrayevhKdEYa7pF+kYkgdK4smw35VWAYM5ExisqYW54=
 -----END RSA PRIVATE KEY-----
 TEXT;
 
-    const KEY_IDP_X509 = <<<TEXT
+    public const KEY_IDP_X509 = <<<TEXT
 -----BEGIN CERTIFICATE-----
 MIIDCTCCAnKgAwIBAgIBATANBgkqhkiG9w0BAQUFADBvMRQwEgYDVQQDEwtjYXBy
 aXphLmNvbTELMAkGA1UEBhMCVVMxETAPBgNVBAgTCFZpcmdpbmlhMRMwEQYDVQQH
@@ -94,9 +94,7 @@ TEXT;
             ->willReturn($uri);
         $request->expects(static::atLeastOnce())
             ->method('getParam')
-            ->willReturnCallback(function(string $param) use ($uri) : ?string {
-                return $uri->getQueryParam($param);
-            });
+            ->willReturnCallback(fn(string $param): ?string => $uri->getQueryParam($param));
 
         // act
         /** @var ServerRequestEx $request */
@@ -131,9 +129,7 @@ TEXT;
             ->willReturn($uri);
         $request->expects(static::atLeastOnce())
             ->method('getParam')
-            ->willReturnCallback(function(string $param) use ($uri) : ?string {
-                return $uri->getQueryParam($param);
-            });
+            ->willReturnCallback(fn(string $param): ?string => $uri->getQueryParam($param));
 
         // act
         /** @var ServerRequestEx $request */

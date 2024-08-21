@@ -28,7 +28,7 @@ use modethirteen\XArray\XArray;
 
 abstract class AbstractSamlTestCase extends AbstractTestCase {
 
-    const KEY_IDP_PRIVATE = <<<TEXT
+    public const KEY_IDP_PRIVATE = <<<TEXT
 -----BEGIN PRIVATE KEY-----
 MIIJQgIBADANBgkqhkiG9w0BAQEFAASCCSwwggkoAgEAAoICAQC3/tdzkXNxRdtK
 1oRXJjIMh81GaNcSjg710WVlQ6Ch6sWKvaKANp+RZ1S56MKfxpaQ0VXzAbkCjDy/
@@ -83,7 +83,7 @@ tjrZBae8ssmUS7y9j//J74MaIVa3XQ==
 -----END PRIVATE KEY-----
 TEXT;
 
-    const KEY_IDP_X509 = <<<TEXT
+    public const KEY_IDP_X509 = <<<TEXT
 -----BEGIN CERTIFICATE-----
 MIIFYjCCA0oCCQCbWD6pJkNM8DANBgkqhkiG9w0BAQsFADBzMQswCQYDVQQGEwJD
 QTEMMAoGA1UECAwDZm9vMQwwCgYDVQQHDANiYXIxDDAKBgNVBAoMA2JhejEMMAoG
@@ -117,7 +117,7 @@ NEb1mu1JZXF8bu8gw1uKCVGLQ6JxLZEQxqy7tyOKF9Z5XJUuZqngmgVqqtvDdEnM
 -----END CERTIFICATE-----
 TEXT;
 
-    const KEY_SP_PRIVATE = <<<TEXT
+    public const KEY_SP_PRIVATE = <<<TEXT
 -----BEGIN PRIVATE KEY-----
 MIIJQgIBADANBgkqhkiG9w0BAQEFAASCCSwwggkoAgEAAoICAQDhU04deKfaDkfl
 HpYvZirtOub8uddWK9FAAVSgJhbZtZ50MfKnuc0V8vGrGST2UavRRS2tpk3cKTWW
@@ -172,7 +172,7 @@ jGIxA/0KGa12yIyOPQdnxCL579ILhw==
 -----END PRIVATE KEY-----
 TEXT;
 
-    const KEY_SP_X509 = <<<TEXT
+    public const KEY_SP_X509 = <<<TEXT
 -----BEGIN CERTIFICATE-----
 MIIFXjCCA0YCCQDU3pFpc4uvLzANBgkqhkiG9w0BAQsFADBxMQswCQYDVQQGEwJV
 UzEMMAoGA1UECAwDZm9vMQwwCgYDVQQHDANiYXIxDDAKBgNVBAoMA2JhejEMMAoG
@@ -207,7 +207,7 @@ IV8AHtQDSDrpDwIAgPW4Ot3j70YK9DP+5TeLQKRhtMpPlE8ApU+U5d24BAhyDgUt
 TEXT;
 
     // original unsigned samlp:AuthnRequest message is located at https://www.samltool.com/generic_sso_req.php
-    const MESSAGE_UNSIGNED_AUTHN_REQUEST = <<<XML
+    public const MESSAGE_UNSIGNED_AUTHN_REQUEST = <<<XML
 <samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="ONELOGIN_809707f0030a5d00620c9d9df97f627afe9dcc24" Version="2.0" ProviderName="SP test" IssueInstant="2014-07-16T23:52:45Z" Destination="http://idp.example.com/SSOService.php" ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" AssertionConsumerServiceURL="http://sp.example.com/demo1/index.php?acs">
   <saml:Issuer>http://sp.example.com/demo1/metadata.php</saml:Issuer>
   <samlp:NameIDPolicy Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress" AllowCreate="true"/>
@@ -218,7 +218,7 @@ TEXT;
 XML;
 
     // original unsigned samlp:LogoutRequest message is located at https://www.samltool.com/generic_slo_req.php
-    const MESSAGE_UNSIGNED_LOGOUT_REQUEST = <<<XML
+    public const MESSAGE_UNSIGNED_LOGOUT_REQUEST = <<<XML
 <samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="ONELOGIN_21df91a89767879fc0f7df6a1490c6000c81644d" Version="2.0" IssueInstant="2014-07-18T01:13:06Z" Destination="http://idp.example.com/SingleLogoutService.php">
   <saml:Issuer>http://sp.example.com/demo1/metadata.php</saml:Issuer>
   <saml:NameID SPNameQualifier="http://sp.example.com/demo1/metadata.php" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">ONELOGIN_f92cc1834efc0f73e9c09f482fce80037a6251e7</saml:NameID>
@@ -226,7 +226,7 @@ XML;
 XML;
 
     // original unsigned samlp:LogoutResponse message is located at https://www.samltool.com/generic_slo_res.php
-    const MESSAGE_UNSIGNED_LOGOUT_RESPONSE = <<<XML
+    public const MESSAGE_UNSIGNED_LOGOUT_RESPONSE = <<<XML
 <samlp:LogoutResponse xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_6c3737282f007720e736f0f4028feed8cb9b40291c" Version="2.0" IssueInstant="2014-07-18T01:13:06Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_21df91a89767879fc0f7df6a1490c6000c81644d">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer>
   <samlp:Status>
@@ -239,7 +239,7 @@ XML;
      * @note (modethirteen, 20210111): saml:Assertion requires xmlns:saml and xmlns:samlp namespace definitions on entity before encryption
      * @see https://www.samltool.com/generic_sso_res.php
      */
-    const MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION = <<<XML
+    public const MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION = <<<XML_WRAP
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_8e8dc5f69a98cc4c1ff3427e5ce34606fd672f91e6" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer>
   <samlp:Status>
@@ -277,20 +277,13 @@ XML;
     </saml:AttributeStatement>
   </saml:Assertion>
 </samlp:Response>
-XML;
+XML_WRAP
+;
 
-    /**
-     * @param string $message
-     * @return string
-     */
     protected static function getPostEncodedHttpMessage(string $message) : string {
         return base64_encode($message);
     }
 
-    /**
-     * @param string $message
-     * @return string
-     */
     protected static function getRedirectEncodedDeflatedHttpMessage(string $message) : string {
         return base64_encode(gzdeflate($message));
     }
@@ -302,15 +295,10 @@ XML;
         return new DocumentFactory(new class($directory) implements DocumentSchemaResolverInterface {
 
             /**
-             * @var string
-             */
-            private $directory;
-
-            /**
              * @param string $directory - schema collection root directory
              */
-            public function __construct(string $directory) {
-                $this->directory = $directory;
+            public function __construct(private string $directory)
+            {
             }
 
             public function resolve(string $schema): string {
@@ -320,7 +308,6 @@ XML;
     }
 
     /**
-     * @return ImportCryptoKeyPairFactory
      * @throws CryptoKeyFactoryCannotConstructCryptoKeyException
      */
     protected static function newIdentityProviderCryptoKeyPairFactory() : ImportCryptoKeyPairFactory {
@@ -337,7 +324,6 @@ XML;
     }
 
     /**
-     * @return ImportCryptoKeyPairFactory
      * @throws CryptoKeyFactoryCannotConstructCryptoKeyException
      */
     protected static function newServiceProviderCryptoKeyPairFactory() : ImportCryptoKeyPairFactory {
@@ -353,10 +339,6 @@ XML;
         }
     }
 
-    /**
-     * @param XUri $uri
-     * @return ServerRequestEx
-     */
     protected function newHttpGetRequest(XUri $uri) : ServerRequestEx {
         $request = $this->newMock(ServerRequestEx::class);
         $request->expects(static::any())
@@ -364,9 +346,7 @@ XML;
             ->willReturn(new XArray([]));
         $request->expects(static::any())
             ->method('getParam')
-            ->willReturnCallback(function(string $param) use ($uri) {
-                return $uri->getQueryParam($param);
-            });
+            ->willReturnCallback(fn(string $param) => $uri->getQueryParam($param));
         $request->expects(static::any())
             ->method('getUri')
             ->willReturn($uri);
@@ -381,11 +361,6 @@ XML;
         return $request;
     }
 
-    /**
-     * @param XUri $uri
-     * @param XArray $body
-     * @return ServerRequestEx
-     */
     protected function newHttpPostRequest(XUri $uri, XArray $body) : ServerRequestEx {
         $request = $this->newMock(ServerRequestEx::class);
         $request->expects(static::any())

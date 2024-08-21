@@ -21,19 +21,11 @@ use modethirteen\TypeEx\StringEx;
 
 abstract class AbstractClaims extends Dictionary {
 
-    /**
-     * @param string $name
-     * @return string|null
-     */
     public function getClaim(string $name) : ?string {
         $value = $this->get($name);
         return $value !== null ? StringEx::stringify($value) : null;
     }
 
-    /**
-     * @param string $name
-     * @return array|null
-     */
     public function getClaims(string $name) : ?array {
         $value = $this->get($name);
         return $value !== null ? (is_array($value) ? $value : [$value]) : null;

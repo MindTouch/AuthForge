@@ -39,17 +39,17 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Ramsey\Uuid\UuidFactoryInterface;
 
 class getAuthenticatedUri_Test extends AbstractSamlTestCase {
-    const CASE_FULFILLED_REQUIRED = 1;
-    const CASE_FULFILLED_NOT_REQUIRED = 2;
-    const CASE_UNFULFILLED_REQUIRED = 4;
-    const CASE_UNFULFILLED_NOT_REQUIRED = 8;
+    public const CASE_FULFILLED_REQUIRED = 1;
+    public const CASE_FULFILLED_NOT_REQUIRED = 2;
+    public const CASE_UNFULFILLED_REQUIRED = 4;
+    public const CASE_UNFULFILLED_NOT_REQUIRED = 8;
 
     /**
      * Signed with AbstractSamlTestCase::KEY_IDP_PRIVATE (SHA1)
      * Encrypted with AbstractSamlTestCase::KEY_SP_X509 (AES128)
      * @see AbstractSamlTestCase::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION
      */
-    const MESSAGE_SIGNED_RESPONSE_WITH_SIGNED_ENCRYPTED_ASSERTION = <<<XML
+    public const MESSAGE_SIGNED_RESPONSE_WITH_SIGNED_ENCRYPTED_ASSERTION = <<<XML
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="pfx6ee48728-2c67-22bb-5f7d-fbdfd28b00e4" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
   <ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -71,7 +71,7 @@ XML;
      * Signed with AbstractSamlTestCase::KEY_IDP_PRIVATE (SHA1)
      * @see AbstractSamlTestCase::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION
      */
-    const MESSAGE_SIGNED_RESPONSE_WITH_SIGNED_UNENCRYPTED_ASSERTION = <<<XML
+    public const MESSAGE_SIGNED_RESPONSE_WITH_SIGNED_UNENCRYPTED_ASSERTION = <<<XML_WRAP
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="pfx6ee48728-2c67-22bb-5f7d-fbdfd28b00e4" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
   <ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -117,14 +117,15 @@ XML;
     </saml:AttributeStatement>
   </saml:Assertion>
 </samlp:Response>
-XML;
+XML_WRAP
+;
 
     /**
      * Signed with AbstractSamlTestCase::KEY_IDP_PRIVATE (SHA1)
      * Encrypted with AbstractSamlTestCase::KEY_SP_X509 (AES128)
      * @see AbstractSamlTestCase::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION
      */
-    const MESSAGE_SIGNED_RESPONSE_WITH_UNSIGNED_ENCRYPTED_ASSERTION = <<<XML
+    public const MESSAGE_SIGNED_RESPONSE_WITH_UNSIGNED_ENCRYPTED_ASSERTION = <<<XML
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="pfx656e444c-c75e-edc7-45c2-01878435eb0a" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
   <ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -146,7 +147,7 @@ XML;
      * Signed with AbstractSamlTestCase::KEY_IDP_PRIVATE (SHA1)
      * @see AbstractSamlTestCase::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION
      */
-    const MESSAGE_SIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION = <<<XML
+    public const MESSAGE_SIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION = <<<XML_WRAP
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="pfx656e444c-c75e-edc7-45c2-01878435eb0a" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
   <ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -188,14 +189,15 @@ XML;
     </saml:AttributeStatement>
   </saml:Assertion>
 </samlp:Response>
-XML;
+XML_WRAP
+;
 
     /**
      * Signed with AbstractSamlTestCase::KEY_IDP_PRIVATE (SHA1)
      * Encrypted with AbstractSamlTestCase::KEY_SP_X509 (AES128)
      * @see AbstractSamlTestCase::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION
      */
-    const MESSAGE_UNSIGNED_RESPONSE_WITH_SIGNED_ENCRYPTED_ASSERTION = <<<XML
+    public const MESSAGE_UNSIGNED_RESPONSE_WITH_SIGNED_ENCRYPTED_ASSERTION = <<<XML
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_8e8dc5f69a98cc4c1ff3427e5ce34606fd672f91e6" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer>
   <samlp:Status>
@@ -213,7 +215,7 @@ XML;
      * Signed with AbstractSamlTestCase::KEY_IDP_PRIVATE (SHA1)
      * @see AbstractSamlTestCase::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION
      */
-    const MESSAGE_UNSIGNED_RESPONSE_WITH_SIGNED_UNENCRYPTED_ASSERTION = <<<XML
+    public const MESSAGE_UNSIGNED_RESPONSE_WITH_SIGNED_UNENCRYPTED_ASSERTION = <<<XML_WRAP
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_8e8dc5f69a98cc4c1ff3427e5ce34606fd672f91e6" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer>
   <samlp:Status>
@@ -255,13 +257,14 @@ XML;
     </saml:AttributeStatement>
   </saml:Assertion>
 </samlp:Response>
-XML;
+XML_WRAP
+;
 
     /**
      * Encrypted with AbstractSamlTestCase::KEY_SP_X509 (AES128)
      * @see AbstractSamlTestCase::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION
      */
-    const MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_ENCRYPTED_ASSERTION = <<<XML
+    public const MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_ENCRYPTED_ASSERTION = <<<XML
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_8e8dc5f69a98cc4c1ff3427e5ce34606fd672f91e6" Version="2.0" IssueInstant="2014-07-17T01:01:48Z" Destination="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685">
   <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer>
   <samlp:Status>
@@ -277,7 +280,6 @@ XML;
 
     /**
      * @note (modethirteen, 20210110): signed redirect binding requests use an unsigned message body and add the signature when building the request URI in the test case
-     * @return array
      * @throws NotSupportedException
      */
     public static function isPostHttpMessage_isMessageSignatureRequired_isAssertionSignatureRequired_isAssertionEncryptionRequired_isSuccessExpected_message_SuccessProvider() : array {
@@ -314,34 +316,17 @@ XML;
                         $isMessageSigned = self::isCase($messageSignatureCase, [self::CASE_FULFILLED_REQUIRED, self::CASE_FULFILLED_NOT_REQUIRED]);
                         $isAssertionSigned = self::isCase($assertionSignatureCase, [self::CASE_FULFILLED_REQUIRED, self::CASE_FULFILLED_NOT_REQUIRED]);
                         $isAssertionEncrypted = self::isCase($assertionEncryptionCase, [self::CASE_FULFILLED_REQUIRED, self::CASE_FULFILLED_NOT_REQUIRED]);
-                        switch(true) {
-                            case $isMessageSigned && $isAssertionSigned && $isAssertionEncrypted:
-                                $message = self::MESSAGE_SIGNED_RESPONSE_WITH_SIGNED_ENCRYPTED_ASSERTION;
-                                break;
-                            case $isMessageSigned && $isAssertionSigned && !$isAssertionEncrypted:
-                                $message = self::MESSAGE_SIGNED_RESPONSE_WITH_SIGNED_UNENCRYPTED_ASSERTION;
-                                break;
-                            case $isMessageSigned && !$isAssertionSigned && $isAssertionEncrypted:
-                                $message = self::MESSAGE_SIGNED_RESPONSE_WITH_UNSIGNED_ENCRYPTED_ASSERTION;
-                                break;
-                            case $isMessageSigned && !$isAssertionSigned && !$isAssertionEncrypted:
-                                $message = self::MESSAGE_SIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION;
-                                break;
-                            case !$isMessageSigned && $isAssertionSigned && !$isAssertionEncrypted:
-                                $message = self::MESSAGE_UNSIGNED_RESPONSE_WITH_SIGNED_UNENCRYPTED_ASSERTION;
-                                break;
-                            case !$isMessageSigned && $isAssertionSigned && $isAssertionEncrypted:
-                                $message = self::MESSAGE_UNSIGNED_RESPONSE_WITH_SIGNED_ENCRYPTED_ASSERTION;
-                                break;
-                            case !$isMessageSigned && !$isAssertionSigned && !$isAssertionEncrypted:
-                                $message = self::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION;
-                                break;
-                            case !$isMessageSigned && !$isAssertionSigned && $isAssertionEncrypted:
-                                $message = self::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_ENCRYPTED_ASSERTION;
-                                break;
-                            default:
-                                throw new NotSupportedException('unsupported case');
-                        }
+                        $message = match (true) {
+                            $isMessageSigned && $isAssertionSigned && $isAssertionEncrypted => self::MESSAGE_SIGNED_RESPONSE_WITH_SIGNED_ENCRYPTED_ASSERTION,
+                            $isMessageSigned && $isAssertionSigned && !$isAssertionEncrypted => self::MESSAGE_SIGNED_RESPONSE_WITH_SIGNED_UNENCRYPTED_ASSERTION,
+                            $isMessageSigned && !$isAssertionSigned && $isAssertionEncrypted => self::MESSAGE_SIGNED_RESPONSE_WITH_UNSIGNED_ENCRYPTED_ASSERTION,
+                            $isMessageSigned && !$isAssertionSigned && !$isAssertionEncrypted => self::MESSAGE_SIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION,
+                            !$isMessageSigned && $isAssertionSigned && !$isAssertionEncrypted => self::MESSAGE_UNSIGNED_RESPONSE_WITH_SIGNED_UNENCRYPTED_ASSERTION,
+                            !$isMessageSigned && $isAssertionSigned && $isAssertionEncrypted => self::MESSAGE_UNSIGNED_RESPONSE_WITH_SIGNED_ENCRYPTED_ASSERTION,
+                            !$isMessageSigned && !$isAssertionSigned && !$isAssertionEncrypted => self::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_UNENCRYPTED_ASSERTION,
+                            !$isMessageSigned && !$isAssertionSigned && $isAssertionEncrypted => self::MESSAGE_UNSIGNED_RESPONSE_WITH_UNSIGNED_ENCRYPTED_ASSERTION,
+                            default => throw new NotSupportedException('unsupported case'),
+                        };
 
                         // add test case to data provider
                         $isSuccessExpected = !self::isCase($messageSignatureCase | $assertionSignatureCase | $assertionEncryptionCase, [self::CASE_UNFULFILLED_REQUIRED]);
@@ -364,9 +349,7 @@ XML;
     }
 
     /**
-     * @param int $case
      * @param int[] $checks - check if $case contains any of these case situations
-     * @return bool
      */
     private static function isCase(int $case, array $checks) : bool {
         foreach($checks as $check) {
@@ -381,15 +364,6 @@ XML;
      * @todo (modethirteen, 20200110): test encrypted Assertion/Subject/@NameID
      * @dataProvider isPostHttpMessage_isMessageSignatureRequired_isAssertionSignatureRequired_isAssertionEncryptionRequired_isSuccessExpected_message_SuccessProvider
      * @test
-     * @param bool $isPostHttpMessage
-     * @param bool $isMessageSigned
-     * @param bool $isMessageSignatureRequired
-     * @param bool $isAssertionSigned
-     * @param bool $isAssertionSignatureRequired
-     * @param bool $isAssertionEncrypted
-     * @param bool $isAssertionEncryptionRequired
-     * @param bool $isSuccessExpected
-     * @param string $message
      * @throws CryptoKeyCannotParseCryptoKeyTextException
      * @throws CryptoKeyFactoryCannotConstructCryptoKeyException
      * @throws MalformedUriException
@@ -551,7 +525,7 @@ XML;
             static::assertEquals('https://app.example.com/dashboard', $result->toString());
             static::assertCount(1, $events);
             $event = $events[0];
-            static::assertEquals(1531406335, $event->getDateTime()->getTimestamp());
+            static::assertEquals(1_531_406_335, $event->getDateTime()->getTimestamp());
             static::assertEquals('_be9967abd904ddcae3c0eb4189adbe3f71e327cf93', $event->getSessionIndex());
             static::assertEquals([
                 'uid' => 'test',
