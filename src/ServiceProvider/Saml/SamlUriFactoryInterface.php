@@ -22,9 +22,10 @@ interface SamlUriFactoryInterface {
 
     /**
      * @param XUri $returnUri
+     * @param string $securityKey
      * @return XUri
      */
-    public function newAuthnRequestUri(XUri $returnUri) : XUri;
+    public function newAuthnRequestUri(XUri $returnUri, string $securityKey = XMLSecurityKey::RSA_SHA1) : XUri;
 
     /**
      * @param string $username
