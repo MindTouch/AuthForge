@@ -185,7 +185,7 @@ class SamlFlowService implements AuthFlowServiceInterface {
      * {@inheritDoc}
      * @throws SamlFlowServiceException
      */
-    public function getLoginUri(XUri $returnUri, XMLSecurityKey $securityKey = XMLSecurityKey::RSA_SHA1) : XUri {
+    public function getLoginUri(XUri $returnUri, string $securityKey = XMLSecurityKey::RSA_SHA1) : XUri {
         try {
             return $this->uriFactory->newAuthnRequestUri($returnUri, $securityKey);
         } catch(

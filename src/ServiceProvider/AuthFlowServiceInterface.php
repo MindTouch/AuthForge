@@ -28,10 +28,10 @@ interface AuthFlowServiceInterface {
 
     /**
      * @param XUri $returnUri
-     * @param bool $sha512EncryptionEnabled
+     * @param string $securityKey
      * @return XUri
      */
-    public function getLoginUri(XUri $returnUri, XMLSecurityKey $securityKey = XMLSecurityKey::RSA_SHA1) : XUri;
+    public function getLoginUri(XUri $returnUri, string $securityKey = XMLSecurityKey::RSA_SHA1) : XUri;
 
     /**
      * @param string $id - user identifier for downstream identity provider
