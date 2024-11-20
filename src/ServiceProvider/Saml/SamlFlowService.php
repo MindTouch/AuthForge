@@ -178,7 +178,7 @@ class SamlFlowService implements AuthFlowServiceInterface {
         $this->eventDispatcher->dispatch(
             new SamlAuthnResponseFlowEvent($this->dateTime, $claims, StringEx::stringify($authnResponse->getSessionIndex()))
         );
-        return $this->getRedirectUriFromRequestRelayState($this->saml, $request, $this->logger);
+        return $this->getRedirectUriFromRequestRelayState($this->saml, $request, $this->logger, false);
     }
 
     /**
