@@ -64,7 +64,7 @@ trait RelayStateAuthFlowServiceTrait {
                 ]);
             }
             catch(SamlInvalidRelayStateUri $e) {
-                $this->logger->warning('RelayState URI does not match the site base URI, {{Uri}}', [
+                $this->logger->warning('RelayState URI does not match service provider base URI, {{Uri}}', [
                     'Uri' => $e->getMessage()
                 ]);
             }
