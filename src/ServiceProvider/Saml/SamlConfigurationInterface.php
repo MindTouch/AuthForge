@@ -170,4 +170,9 @@ interface SamlConfigurationInterface {
      * @return bool
      */
     public function isStrictValidationRequired() : bool;
+
+    /**
+     * @return bool
+     */
+    public function isValidRelayStateUri(string $uri) : bool;
 }
