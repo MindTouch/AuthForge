@@ -18,6 +18,7 @@ namespace modethirteen\AuthForge\ServiceProvider\Saml;
 
 use modethirteen\AuthForge\Common\Exception\ServerRequestInterfaceParsedBodyException;
 use modethirteen\AuthForge\Common\Http\ServerRequestEx;
+use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlInvalidRelayStateUri;
 use modethirteen\AuthForge\ServiceProvider\Saml\Http\HttpMessageInterface;
 use modethirteen\Http\Exception\MalformedPathQueryFragmentException;
 use modethirteen\Http\Exception\MalformedUriException;
@@ -27,7 +28,7 @@ use Psr\Log\LoggerInterface;
 
 trait RelayStateAuthFlowServiceTrait {
 
-    protected function getRedirectUriFromRequestRelayState(SamlConfigurationInterface $saml, ServerRequestEx $request, LoggerInterface $logger) : XUri {
+    protected function getRedirectUriFromRequestRelayState(SamlConfigurationInterface $saml, ServerRequestEx $request, LoggerInterface $logger, bool $enforceRelayStateEnable) : XUri {
         try {
             $relayState = $request->getParam(HttpMessageInterface::PARAM_SAML_RELAYSTATE);
         } catch(ServerRequestInterfaceParsedBodyException $e) {
@@ -39,9 +40,14 @@ trait RelayStateAuthFlowServiceTrait {
         if(!StringEx::isNullOrEmpty($relayState)) {
             $logger->debug('Found RelayState', ['RelayState' => $relayState]);
             try {
-                return XUri::isAbsoluteUrl($relayState)
-                    ? XUri::newFromString($relayState)
-                    : $saml->getRelayStateBaseUri()->atPath($relayState);
+                if(XUri::isAbsoluteUrl($relayState)) {
+                    if($enforceRelayStateEnable && !$saml->isValidRelayStateUri($relayState)) {
+                        throw new SamlInvalidRelayStateUri();
+                    }
+                    return XUri::newFromString($relayState);
+                } else {
+                    return $saml->getRelayStateBaseUri()->atPath($relayState);
+                }
             } catch(MalformedPathQueryFragmentException $e) {
                 $this->logger->warning('Could not append relative RelayState to service provider base URI, {{Error}}', [
                     'Error' => $e->getMessage()
@@ -49,6 +55,11 @@ trait RelayStateAuthFlowServiceTrait {
             } catch(MalformedUriException $e) {
                 $this->logger->warning('Could not parse absolute RelayState, {{Error}}', [
                     'Error' => $e->getMessage()
+                ]);
+            }
+            catch(SamlInvalidRelayStateUri $e) {
+                $this->logger->warning('RelayState URI does not match service provider base URI, {{Uri}}', [
+                    'Uri' => $e->getMessage()
                 ]);
             }
         }
