@@ -29,6 +29,7 @@ use modethirteen\AuthForge\ServiceProvider\Saml\AssertionAttributeClaims;
 use modethirteen\AuthForge\ServiceProvider\Saml\Document;
 use modethirteen\AuthForge\ServiceProvider\Saml\DocumentFactoryInterface;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotLoadCryptoKeyException;
+use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlConsumedAssertionException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlDocumentSchemaValidationException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlDocumentSignatureValidationException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlHttpMessageAuthnResponseAssertionDoesNotContainNameIdException;
@@ -245,8 +246,9 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
      * @throws SamlHttpMessageAuthnResponseDoesNotContainStatusCodeException
      * @throws SamlHttpMessageValidationException
      * @throws ServerRequestInterfaceParsedBodyException
+     * @throws SamlConsumedAssertionException
      */
-    public function validate(string $requestId = null) : void {
+    public function validate(bool $isSamlIdVerificationEnabled = false, string $requestId = null) : void {
         $version = $this->document->documentElement->getAttribute('Version');
         if($version !== '2.0') {
             throw new SamlHttpMessageValidationException('AuthnResponse/@Version is not 2.0', [
@@ -279,6 +281,13 @@ abstract class AbstractAuthnResponseHttpMessage extends AbstractHttpMessage impl
                     'InResponseTo' => $responseInResponseTo,
                     'AuthnRequestId' => $requestId
                 ]);
+            } else if($isSamlIdVerificationEnabled) {
+                $cachedID = $this->saml->getAssertionIdToConsume($responseInResponseTo, $this->saml->getAuthProviderId());
+                if($cachedID != null) {
+                    $this->saml->deleteConsumedAssertionId($responseInResponseTo, $this->saml->getAuthProviderId());
+                } else {
+                    throw new SamlConsumedAssertionException('AuthnResponse/@ID was already been consumed');
+                }
             }
 
             // check encryption (optional)

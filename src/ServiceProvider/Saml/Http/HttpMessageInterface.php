@@ -72,5 +72,5 @@ interface HttpMessageInterface {
     /**
      * @param string|null $requestId - optional request id to compare against InResponseTo value
      */
-    public function validate(string $requestId = null) : void;
+    public function validate(bool $isSamlIdVerificationEnabled = false, string $requestId = null) : void;
 }

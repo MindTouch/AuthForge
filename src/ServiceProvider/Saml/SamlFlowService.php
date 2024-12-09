@@ -28,6 +28,7 @@ use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotDeflateOutgo
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotEncryptMessageDataNameIdException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotGenerateSignatureException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotLoadCryptoKeyException;
+use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlConsumedAssertionException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlDocumentSchemaValidationException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlDocumentSignatureValidationException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlFlowServiceException;
@@ -120,7 +121,8 @@ class SamlFlowService implements AuthFlowServiceInterface {
             MalformedUriException |
             ServerRequestInterfaceParsedBodyException |
             SamlCannotLoadCryptoKeyException |
-            SamlDocumentSignatureValidationException $e
+            SamlDocumentSignatureValidationException |
+            SamlConsumedAssertionException $e
         ) {
             throw (new SamlFlowServiceException('AuthnResponse is invalid: {{Error}}', [
                 'Error' => $e->getMessage()

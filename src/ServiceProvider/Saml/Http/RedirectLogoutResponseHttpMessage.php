@@ -76,7 +76,7 @@ class RedirectLogoutResponseHttpMessage extends AbstractHttpMessage implements H
      * @throws ServerRequestInterfaceParsedBodyException
      * @throws MalformedUriException
      */
-    public function validate(string $requestId = null) : void {
+    public function validate(bool $isSamlIdVerificationEnabled = false, string $requestId = null) : void {
 
         // validate signature
         $isSignatureAvailable = $this->request->getParam(HttpMessageInterface::PARAM_SAML_SIGNATURE) !== null;
