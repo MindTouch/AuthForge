@@ -89,4 +89,6 @@ interface SamlConfigurationInterface {
     public function isNameIdFormatEnforcementEnabled() : bool;
 
     public function isStrictValidationRequired() : bool;
+
+    public function isValidRelayStateUri(string $uri) : bool;
 }
