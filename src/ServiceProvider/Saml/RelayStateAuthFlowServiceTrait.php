@@ -28,7 +28,7 @@ use Psr\Log\LoggerInterface;
 
 trait RelayStateAuthFlowServiceTrait {
 
-    protected function getRedirectUriFromRequestRelayState(SamlConfigurationInterface $saml, ServerRequestEx $request, LoggerInterface $logger, bool $enforceRelayStateEnable) : XUri {
+    protected function getRedirectUriFromRequestRelayState(SamlConfigurationInterface $saml, ServerRequestEx $request, LoggerInterface $logger) : XUri {
         try {
             $relayState = $request->getParam(HttpMessageInterface::PARAM_SAML_RELAYSTATE);
         } catch(ServerRequestInterfaceParsedBodyException $e) {
@@ -41,8 +41,8 @@ trait RelayStateAuthFlowServiceTrait {
             $logger->debug('Found RelayState', ['RelayState' => $relayState]);
             try {
                 if(XUri::isAbsoluteUrl($relayState)) {
-                    if($enforceRelayStateEnable && !$saml->isValidRelayStateUri($relayState)) {
-                        throw new SamlInvalidRelayStateUri();
+                    if(!$saml->isValidRelayStateUri($relayState)) {
+                        throw new SamlInvalidRelayStateUri($relayState);
                     }
                     return XUri::newFromString($relayState);
                 } else {
