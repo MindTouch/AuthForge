@@ -136,7 +136,7 @@ class SamlSingleLogoutFlowService implements SamlSingleLogoutFlowServiceInterfac
                 throw new SamlSingleLogoutFlowServiceLogoutResponseException('LogoutResponse was not successful', ['Status' => $status]);
             }
             $this->eventDispatcher->dispatch(new SamlSingleLogoutResponseFlowEvent($this->dateTime, $status));
-            return $this->getRedirectUriFromRequestRelayState($this->saml, $request, $this->logger, false);
+            return $this->getRedirectUriFromRequestRelayState($this->saml, $request, $this->logger);
         }
 
         // handle IdP-initiated SLO request (idp initiated single logout can halt on errors and provide limited details in response)
@@ -209,7 +209,7 @@ class SamlSingleLogoutFlowService implements SamlSingleLogoutFlowServiceInterfac
                 $this->eventDispatcher->dispatch(new SamlSingleLogoutRequestFlowEvent($this->dateTime, $username, $sessionIndexes));
             }
             $this->logger->debug('SessionIndexes dirtied, attempting to redirect back to IdP SLO...');
-            $redirectUri = $this->getRedirectUriFromRequestRelayState($this->saml, $request, $this->logger, false);
+            $redirectUri = $this->getRedirectUriFromRequestRelayState($this->saml, $request, $this->logger);
             $logoutResponseUri = null;
             try {
                 $logoutResponseUri = (new SamlUriFactory($this->saml, $this->dateTime, $this->logger, $this->uuidFactory, $this->sessionIndexRegistry))
