@@ -53,6 +53,10 @@ class OAuthFlowService implements AuthFlowServiceInterface {
     public const PARAM_RESPONSE_TYPE = 'response_type';
     public const PARAM_SCOPE = 'scope';
     public const PARAM_STATE = 'state';
+    public const PARAM_CODE_CHALLENGE_METHOD = 'code_challenge_method';
+    public const PARAM_CODE_CHALLENGE = 'code_challenge';
+    public const SESSION_OAUTH_CODE_VERIFIER = 'code_verifier';
+
     #endregion
 
     #region session state
@@ -108,14 +112,22 @@ class OAuthFlowService implements AuthFlowServiceInterface {
                 'ErrorDescription' => $params->get(self::PARAM_ERROR_DESCRIPTION)
             ]);
         }
+        $baseCodeVerifier = $this->sessionStorage->getVal(self::SESSION_OAUTH_CODE_VERIFIER);
 
         // request token
         $this->logger->debug('Requesting token(s)...');
         $tokenFormDataParameterValuePairs = [
             self::PARAM_CODE => $code,
             self::PARAM_GRANT_TYPE => 'authorization_code',
-            self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString()
+            self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString(),
+            self::SESSION_OAUTH_CODE_VERIFIER => $codeVerifier
         ];
+        if(!StringEx::isNullOrEmpty($baseCodeVerifier)) {
+            $encodedState = $this->base64UrlEncode($state);
+            $codeVerifier = $baseCodeVerifier . $encodedState;
+            $tokenFormDataParameterValuePairs[self::SESSION_OAUTH_CODE_VERIFIER] = $codeVerifier;
+        }
+
         $tokenUri = $this->oauth->getIdentityProviderTokenUri();
         $clientId = $this->oauth->getRelyingPartyClientId();
         $clientSecret = $this->oauth->getRelyingPartyClientSecret();
@@ -154,6 +166,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
                 'StatusCode' => $tokenResult->getStatus()
             ]);
         }
+        $this->sessionStorage->getVal(self::SESSION_OAUTH_CODE_VERIFIER);
         $claims = $this->middlewareService->getClaims($tokenResult);
         $username = $claims->getUsername();
         if(StringEx::isNullOrEmpty($username)) {
@@ -175,6 +188,10 @@ class OAuthFlowService implements AuthFlowServiceInterface {
     public function getLoginUri(XUri $returnUri, string $securityKey = XMLSecurityKey::RSA_SHA1) : XUri {
         $clientId = $this->oauth->getRelyingPartyClientId();
         $state = $this->uuidFactory->uuid4()->toString();
+        $encodedState = $this->base64UrlEncode($state);
+        $baseCodeVerifier = $this->generateCodeVerifier();
+        $codeVerifier = $baseCodeVerifier . $encodedState;
+        $codeChallenge = $this->generateCodeChallenge($codeVerifier);
         $uri = $this->oauth->getIdentityProviderAuthorizationUri()
             ->withoutQueryParams([
                 self::PARAM_CLIENT_ID,
@@ -186,8 +203,12 @@ class OAuthFlowService implements AuthFlowServiceInterface {
             ->with(self::PARAM_CLIENT_ID, $clientId)
             ->with(self::PARAM_REDIRECT_URI, $this->oauth->getAuthorizationCodeConsumerUri()->toString())
             ->with(self::PARAM_RESPONSE_TYPE, 'code')
-            ->with(self::PARAM_STATE, $state);
+            ->with(self::PARAM_STATE, $state)
+            ->with(self::PARAM_CODE_CHALLENGE, $codeChallenge)
+            ->with(self::PARAM_CODE_CHALLENGE_METHOD, 'S256');
 
+        $this->sessionStorage->setVal(self::SESSION_OAUTH_CODE_VERIFIER, $baseCodeVerifier);
+        $this->sessionStorage->setVal(self::PARAM_CODE_CHALLENGE, $codeChallenge);
         // scope
         $scopes = array_unique(array_merge($this->middlewareService->getScopes(), $this->oauth->getScopes()));
         $uri = $uri->with(self::PARAM_SCOPE, implode(' ', $scopes));
@@ -239,5 +260,19 @@ class OAuthFlowService implements AuthFlowServiceInterface {
      */
     private function newPlug(XUri $uri) : Plug {
         return (new Plug($uri))->withTimeout(self::PLUG_TIMEOUT);
+    }
+
+    private function generateCodeVerifier(): string {
+        $randomBytes = random_bytes(32);
+        return $this->base64UrlEncode($randomBytes);
+    }
+
+    private function generateCodeChallenge(string $codeVerifier): string {
+        $hash = hash('sha256', $codeVerifier, true);
+        return $this->base64UrlEncode($hash);
+    }
+
+    private function base64UrlEncode(string $data): string {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 }
