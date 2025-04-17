@@ -264,8 +264,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
 
     private function generateCodeVerifier(): string {
         $randomBytes = random_bytes(32);
-        $baseVerifier = rtrim(strtr(base64_encode($randomBytes), '+/', '-_'), '=');
-        return $baseVerifier;
+        return $this->base64UrlEncode($randomBytes);
     }
 
     private function generateCodeChallenge(string $codeVerifier): string {
