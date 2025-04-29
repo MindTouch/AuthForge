@@ -18,6 +18,7 @@ namespace modethirteen\AuthForge\ServiceProvider;
 
 use modethirteen\AuthForge\Common\Http\ServerRequestEx;
 use modethirteen\Http\XUri;
+use RobRichards\XMLSecLibs;
 
 interface AuthFlowServiceInterface {
 
@@ -31,7 +32,7 @@ interface AuthFlowServiceInterface {
      * @param XMLSecurityKey::RSA_SHA1|XMLSecurityKey::RSA_SHA256 $securityKey
      * @return XUri
      */
-    public function getLoginUri(XUri $returnUri, XMLSecurityKey $securityKey = XMLSecurityKey::RSA_SHA1) : XUri;
+    public function getLoginUri(XUri $returnUri, string $securityKey = \RobRichards\XMLSecLibs\XMLSecurityKey::RSA_SHA1) : XUri;
 
     /**
      * @param string $id - user identifier for downstream identity provider
