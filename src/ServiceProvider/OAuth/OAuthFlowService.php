@@ -37,6 +37,7 @@ use modethirteen\TypeEx\StringEx;
 use modethirteen\XArray\MutableXArray;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Ramsey\Uuid\UuidFactoryInterface;
+use RobRichards\XMLSecLibs;
 
 class OAuthFlowService implements AuthFlowServiceInterface {
 

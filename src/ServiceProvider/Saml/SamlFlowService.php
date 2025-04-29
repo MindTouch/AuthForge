@@ -49,6 +49,7 @@ use modethirteen\TypeEx\Exception\InvalidDictionaryValueException;
 use modethirteen\TypeEx\StringEx;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Ramsey\Uuid\UuidFactoryInterface;
+use RobRichards\XMLSecLibs;
 
 class SamlFlowService implements AuthFlowServiceInterface {
     use RelayStateAuthFlowServiceTrait;
