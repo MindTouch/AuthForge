@@ -186,7 +186,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
         return $returnUri ?? $this->oauth->getDefaultReturnUri();
     }
 
-    public function getLoginUri(XUri $returnUri, string $securityKey = XMLSecurityKey::RSA_SHA1) : XUri {
+    public function getLoginUri(XUri $returnUri, string $securityKey = \RobRichards\XMLSecLibs\XMLSecurityKey::RSA_SHA1) : XUri {
         $clientId = $this->oauth->getRelyingPartyClientId();
         $state = $this->uuidFactory->uuid4()->toString();
         $encodedState = $this->base64UrlEncode($state);
