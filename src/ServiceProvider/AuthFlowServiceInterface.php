@@ -18,7 +18,7 @@ namespace modethirteen\AuthForge\ServiceProvider;
 
 use modethirteen\AuthForge\Common\Http\ServerRequestEx;
 use modethirteen\Http\XUri;
-use RobRichards/XMLSecLibs;
+use RobRichards\XMLSecLibs;
 
 interface AuthFlowServiceInterface {
 
