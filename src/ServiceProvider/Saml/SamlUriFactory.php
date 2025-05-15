@@ -47,7 +47,7 @@ class SamlUriFactory implements SamlUriFactoryInterface {
      * @throws SamlCannotGenerateSignatureException
      * @throws SamlCannotLoadCryptoKeyException
      */
-    public function newAuthnRequestUri(XUri $returnUri, string $securityKey = XMLSecurityKey::RSA_SHA1) : XUri {
+    public function newAuthnRequestUri(XUri $returnUri, string $securityKey = XMLSecurityKey::RSA_SHA256) : XUri {
         $uri = $this->saml->getIdentityProviderSingleSignOnUri();
         $returnHref = $returnUri->toString();
         $id = $this->newId();
@@ -97,7 +97,7 @@ class SamlUriFactory implements SamlUriFactoryInterface {
         // handle signing
         if($this->saml->isLogoutRequestSignatureRequired()) {
             $signature = $this->buildRequestSignature($samlRequest, $returnHref);
-            $parameters['SigAlg'] = XMLSecurityKey::RSA_SHA1;
+            $parameters['SigAlg'] = XMLSecurityKey::RSA_SHA256;
             $parameters['Signature'] = $signature;
         }
         $this->logger->debug('Sending LogoutRequest', [
@@ -133,7 +133,7 @@ class SamlUriFactory implements SamlUriFactoryInterface {
         // handle signing
         if($this->saml->isLogoutResponseSignatureRequired()) {
             $signature = $this->buildRequestSignature($samlResponse, $returnHref);
-            $parameters['SigAlg'] = XMLSecurityKey::RSA_SHA1;
+            $parameters['SigAlg'] = XMLSecurityKey::RSA_SHA256;
             $parameters['Signature'] = $signature;
         }
         $this->logger->debug('Sending LogoutResponse', [
@@ -163,11 +163,11 @@ class SamlUriFactory implements SamlUriFactoryInterface {
         // build request query string
         $msg = 'SAMLRequest=' . urlencode($samlRequest);
         $msg .= '&RelayState=' . urlencode($relayState);
-        $msg .= '&SigAlg=' . urlencode(XMLSecurityKey::RSA_SHA1);
+        $msg .= '&SigAlg=' . urlencode(XMLSecurityKey::RSA_SHA256);
 
         // sign request query string
         try {
-            $signer = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, ['type' => 'private']);
+            $signer = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, ['type' => 'private']);
             $signer->loadKey($key->toString(), false);
         } catch(Exception $e) {
             throw new SamlCannotLoadCryptoKeyException($key, $e->getMessage());
