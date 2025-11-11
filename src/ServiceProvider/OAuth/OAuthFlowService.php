@@ -120,8 +120,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
         $tokenFormDataParameterValuePairs = [
             self::PARAM_CODE => $code,
             self::PARAM_GRANT_TYPE => 'authorization_code',
-            self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString(),
-            self::SESSION_OAUTH_CODE_VERIFIER => $codeVerifier
+            self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString()
         ];
         if(!StringEx::isNullOrEmpty($baseCodeVerifier)) {
             $encodedState = $this->base64UrlEncode($state);
