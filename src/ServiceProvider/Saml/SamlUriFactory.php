@@ -47,7 +47,8 @@ class SamlUriFactory implements SamlUriFactoryInterface {
      * @throws SamlCannotGenerateSignatureException
      * @throws SamlCannotLoadCryptoKeyException
      */
-    public function newAuthnRequestUri(XUri $returnUri, XMLSecurityKey $securityKey = XMLSecurityKey::RSA_SHA1) : XUri {
+    public function newAuthnRequestUri(XUri $returnUri, string $securityKey) : XUri {
+        // TODO  if securityKey is null or empty, give it sha1
         $uri = $this->saml->getIdentityProviderSingleSignOnUri();
         $returnHref = $returnUri->toString();
         $id = $this->newId();

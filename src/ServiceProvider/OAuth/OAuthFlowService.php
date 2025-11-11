@@ -173,7 +173,15 @@ class OAuthFlowService implements AuthFlowServiceInterface {
         return $returnUri ?? $this->oauth->getDefaultReturnUri();
     }
 
-    public function getLoginUri(XUri $returnUri, string $securityKey = \RobRichards\XMLSecLibs\XMLSecurityKey::RSA_SHA1) : XUri {
+    /**
+     * Generates a login URI for the OAuth 2.0 authorization code flow.
+     *
+     * @param XUri $returnUri The URI to which the user will be redirected after successful authentication.
+     * @param string $securityKey A security key used for additional validation or encryption purposes (not used in this method).
+     *
+     * @return XUri The constructed login URI with necessary query parameters for OAuth 2.0 authorization code flow.
+     */
+    public function getLoginUri(XUri $returnUri, string $securityKey ) : XUri {
         $clientId = $this->oauth->getRelyingPartyClientId();
         $state = $this->uuidFactory->uuid4()->toString();
         $uri = $this->oauth->getIdentityProviderAuthorizationUri()

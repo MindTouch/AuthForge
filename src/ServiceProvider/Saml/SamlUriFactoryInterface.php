@@ -17,15 +17,16 @@
 namespace modethirteen\AuthForge\ServiceProvider\Saml;
 
 use modethirteen\Http\XUri;
+use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 interface SamlUriFactoryInterface {
 
     /**
      * @param XUri $returnUri
-     * @param XMLSecurityKey $securityKey
+     * @param string $securityKey
      * @return XUri
      */
-    public function newAuthnRequestUri(XUri $returnUri, XMLSecurityKey $securityKey = XMLSecurityKey::RSA_SHA1) : XUri;
+    public function newAuthnRequestUri(XUri $returnUri, string $securityKey) : XUri;
 
     /**
      * @param string $username

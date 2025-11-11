@@ -39,7 +39,7 @@ class AbstractTestCase extends TestCase {
         self::$directory = $directory;
     }
 
-    public function setUp() {
+    public function setUp() : void {
         MockRequestMatcher::setIgnoredHeaderNames([
             Headers::HEADER_CONTENT_LENGTH
         ]);

@@ -49,7 +49,6 @@ use modethirteen\TypeEx\Exception\InvalidDictionaryValueException;
 use modethirteen\TypeEx\StringEx;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Ramsey\Uuid\UuidFactoryInterface;
-use RobRichards\XMLSecLibs;
 
 class SamlFlowService implements AuthFlowServiceInterface {
     use RelayStateAuthFlowServiceTrait;
@@ -186,7 +185,7 @@ class SamlFlowService implements AuthFlowServiceInterface {
      * {@inheritDoc}
      * @throws SamlFlowServiceException
      */
-    public function getLoginUri(XUri $returnUri, string $securityKey = \RobRichards\XMLSecLibs\XMLSecurityKey::RSA_SHA1) : XUri {
+    public function getLoginUri(XUri $returnUri, string $securityKey) : XUri {
         try {
             return $this->uriFactory->newAuthnRequestUri($returnUri, $securityKey);
         } catch(
