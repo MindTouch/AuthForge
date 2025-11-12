@@ -208,3 +208,70 @@ $eventDispatcher->addListener(SamlFlowEvent::class, function(object $event) : vo
 
 // the application should now have everything it needs to sign in the user (or not!)
 ```
+# Updating AuthForge
+
+When updating [AuthForge](https://github.com/MindTouch/AuthForge), follow the steps below to ensure your changes are properly tested and integrated into Deki.
+
+---
+
+### 1. Push your changes to AuthForge
+
+After making your updates to AuthForge, push your branch to GitHub. You will create a PR later that points to `main-php82-2025`.
+Save the **commit SHA** from that push — you’ll need it for local testing in Deki.
+
+---
+
+### 2. Update Deki’s `composer.lock` file
+
+In [`deki/web/composer.lock`](https://github.com/MindTouch/Deki/blob/94ca5089123e4973a03aba9c6f9d0eb4d9c3c917/web/composer.lock#L1224), find the AuthForge package section and update all instances of the `reference` value to your new commit SHA.
+
+You’ll need to update it in:
+
+-   The `source.reference` field
+-   The `dist.reference` field and the `dist.url`
+
+This ensures Deki uses your specific AuthForge commit locally. You do not need to specify a branch.
+
+---
+
+### 3. Reinstall AuthForge inside the Deki container
+
+Run:
+
+```bash
+percy dev
+```
+
+Then inside the container run:
+
+```bash
+composer install
+```
+
+This installs AuthForge using the commit SHA you just updated in `composer.lock`.
+
+---
+
+### 4. Test your changes
+
+Verify that your changes work correctly within Deki.
+Write or update any PHP tests as needed to confirm your new functionality behaves as expected.
+
+---
+
+### 5. Update Deki to use the merged AuthForge version
+
+Once everything works as intended:
+
+1. Create a **pull request** in the AuthForge repository. Create a PR that points to the branch `main-php82-2025`
+2. After it's merged, note the **commit SHA** of the merge commit on the `main-php82-2025` branch.
+
+---
+
+### 6. Update Deki to use the merged AuthForge version
+
+In the Deki repository:
+
+1. Update the `composer.lock` file again (as in Step 2), replacing the AuthForge references with the **merged commit SHA**
+2. Include any related test updates in your PR.
+3. Create a **pull request** to finalize the integration.
