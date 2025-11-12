@@ -114,7 +114,6 @@ class OAuthFlowService implements AuthFlowServiceInterface {
                 'ErrorDescription' => $params->get(self::PARAM_ERROR_DESCRIPTION)
             ]);
         }
-        $baseCodeVerifier = $this->sessionStorage->getVal(self::SESSION_OAUTH_CODE_VERIFIER);
 
         // request token
         $this->logger->debug('Requesting token(s)...');
@@ -123,12 +122,15 @@ class OAuthFlowService implements AuthFlowServiceInterface {
             self::PARAM_GRANT_TYPE => 'authorization_code',
             self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString()
         ];
-        if(!StringEx::isNullOrEmpty($baseCodeVerifier)) {
-            $encodedState = $this->base64UrlEncode($state);
-            $codeVerifier = $baseCodeVerifier . $encodedState;
-            $tokenFormDataParameterValuePairs[self::SESSION_OAUTH_CODE_VERIFIER] = $codeVerifier;
-        }
 
+        if($this->oauth->getPCKEEnabled()){
+            $baseCodeVerifier = $this->sessionStorage->getVal(self::SESSION_OAUTH_CODE_VERIFIER);
+            if(!StringEx::isNullOrEmpty($baseCodeVerifier)) {
+                $encodedState = $this->base64UrlEncode($state);
+                $codeVerifier = $baseCodeVerifier . $encodedState;
+                $tokenFormDataParameterValuePairs[self::SESSION_OAUTH_CODE_VERIFIER] = $codeVerifier;
+            }
+        }
         $tokenUri = $this->oauth->getIdentityProviderTokenUri();
         $clientId = $this->oauth->getRelyingPartyClientId();
         $clientSecret = $this->oauth->getRelyingPartyClientSecret();
@@ -193,14 +195,12 @@ class OAuthFlowService implements AuthFlowServiceInterface {
      * @param string $securityKey A security key used for additional validation or encryption purposes (not used in this method).
      *
      * @return XUri The constructed login URI with necessary query parameters for OAuth 2.0 authorization code flow.
+     * @throws RandomException
      */
-    public function getLoginUri(XUri $returnUri, string $securityKey ) : XUri {
+    public function getLoginUri(XUri $returnUri, string $securityKey) : XUri {
         $clientId = $this->oauth->getRelyingPartyClientId();
         $state = $this->uuidFactory->uuid4()->toString();
         $encodedState = $this->base64UrlEncode($state);
-        $baseCodeVerifier = $this->generateCodeVerifier();
-        $codeVerifier = $baseCodeVerifier . $encodedState;
-        $codeChallenge = $this->generateCodeChallenge($codeVerifier);
         $uri = $this->oauth->getIdentityProviderAuthorizationUri()
             ->withoutQueryParams([
                 self::PARAM_CLIENT_ID,
@@ -212,12 +212,19 @@ class OAuthFlowService implements AuthFlowServiceInterface {
             ->with(self::PARAM_CLIENT_ID, $clientId)
             ->with(self::PARAM_REDIRECT_URI, $this->oauth->getAuthorizationCodeConsumerUri()->toString())
             ->with(self::PARAM_RESPONSE_TYPE, 'code')
-            ->with(self::PARAM_STATE, $state)
-            ->with(self::PARAM_CODE_CHALLENGE, $codeChallenge)
-            ->with(self::PARAM_CODE_CHALLENGE_METHOD, 'S256');
+            ->with(self::PARAM_STATE, $state);
+        if($this->oauth->getPCKEEnabled()){
+            $baseCodeVerifier = $this->generateCodeVerifier();
+            $codeVerifier = $baseCodeVerifier . $encodedState;
+            $codeChallenge = $this->generateCodeChallenge($codeVerifier);
+            $uri = $uri->with(self::PARAM_CODE_CHALLENGE, $codeChallenge)
+                ->with(self::PARAM_CODE_CHALLENGE_METHOD, 'S256');
 
-        $this->sessionStorage->setVal(self::SESSION_OAUTH_CODE_VERIFIER, $baseCodeVerifier);
-        $this->sessionStorage->setVal(self::PARAM_CODE_CHALLENGE, $codeChallenge);
+            // TODO this needs to reviewed closer.
+            $this->sessionStorage->setVal(self::PARAM_CODE_CHALLENGE, $codeChallenge);
+            $this->sessionStorage->setVal(self::SESSION_OAUTH_CODE_VERIFIER, $baseCodeVerifier);
+        }
+
         // scope
         $scopes = array_unique(array_merge($this->middlewareService->getScopes(), $this->oauth->getScopes()));
         $uri = $uri->with(self::PARAM_SCOPE, implode(' ', $scopes));

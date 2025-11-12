@@ -22,6 +22,8 @@ interface OAuthConfigurationInterface {
 
     public function getAllowedClockDrift() : int;
 
+    public function getPCKEEnabled(): bool;
+
     public function getAuthorizationCodeConsumerUri() : XUri;
 
     public function getDefaultReturnUri() : XUri;
