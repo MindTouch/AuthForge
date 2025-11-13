@@ -119,8 +119,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
         $tokenFormDataParameterValuePairs = [
             self::PARAM_CODE => $code,
             self::PARAM_GRANT_TYPE => 'authorization_code',
-            self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString(),
-            self::SESSION_OAUTH_CODE_VERIFIER => $codeVerifier
+            self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString()
         ];
 
         if($this->oauth->getPCKEEnabled()){
@@ -280,8 +279,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
 
     private function generateCodeVerifier(): string {
         $randomBytes = random_bytes(32);
-        $baseVerifier = rtrim(strtr(base64_encode($randomBytes), '+/', '-_'), '=');
-        return $baseVerifier;
+        return $this->base64UrlEncode($randomBytes);
     }
 
     private function generateCodeChallenge(string $codeVerifier): string {
