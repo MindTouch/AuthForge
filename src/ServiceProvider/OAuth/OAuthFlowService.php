@@ -37,7 +37,6 @@ use modethirteen\TypeEx\StringEx;
 use modethirteen\XArray\MutableXArray;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Ramsey\Uuid\UuidFactoryInterface;
-use Random\RandomException;
 use RobRichards\XMLSecLibs;
 
 class OAuthFlowService implements AuthFlowServiceInterface {
@@ -120,7 +119,8 @@ class OAuthFlowService implements AuthFlowServiceInterface {
         $tokenFormDataParameterValuePairs = [
             self::PARAM_CODE => $code,
             self::PARAM_GRANT_TYPE => 'authorization_code',
-            self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString()
+            self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString(),
+            self::SESSION_OAUTH_CODE_VERIFIER => $codeVerifier
         ];
 
         if($this->oauth->getPCKEEnabled()){
@@ -278,14 +278,10 @@ class OAuthFlowService implements AuthFlowServiceInterface {
         return (new Plug($uri))->withTimeout(self::PLUG_TIMEOUT);
     }
 
-    /**
-     * @throws RandomException
-     */
     private function generateCodeVerifier(): string {
-
-        // NOTE this is part of the rfc to be 32 characters
         $randomBytes = random_bytes(32);
-        return $this->base64UrlEncode($randomBytes);
+        $baseVerifier = rtrim(strtr(base64_encode($randomBytes), '+/', '-_'), '=');
+        return $baseVerifier;
     }
 
     private function generateCodeChallenge(string $codeVerifier): string {
