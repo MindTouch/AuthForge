@@ -282,8 +282,6 @@ class OAuthFlowService implements AuthFlowServiceInterface {
      * @throws RandomException
      */
     private function generateCodeVerifier(): string {
-
-        // NOTE this is part of the rfc to be 32 characters
         $randomBytes = random_bytes(32);
         return $this->base64UrlEncode($randomBytes);
     }
