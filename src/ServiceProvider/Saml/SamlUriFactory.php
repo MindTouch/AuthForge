@@ -163,16 +163,14 @@ class SamlUriFactory implements SamlUriFactoryInterface {
             throw new SamlCannotGenerateSignatureException();
         }
 
-        $shaType = $this->getCertificateShaType($this->saml->getServiceProviderRawX509CertificateText());
-
         // build request query string
         $msg = 'SAMLRequest=' . urlencode($samlRequest);
         $msg .= '&RelayState=' . urlencode($relayState);
-        $msg .= '&SigAlg=' . urlencode($shaType);
+        $msg .= '&SigAlg=' . urlencode(XMLSecurityKey::RSA_SHA1);
 
         // sign request query string
         try {
-            $signer = new XMLSecurityKey($shaType, ['type' => 'private']);
+            $signer = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, ['type' => 'private']);
             $signer->loadKey($key->toString(), false);
         } catch(Exception $e) {
             throw new SamlCannotLoadCryptoKeyException($key, $e->getMessage());
@@ -182,29 +180,6 @@ class SamlUriFactory implements SamlUriFactoryInterface {
             throw new SamlCannotGenerateSignatureException();
         }
         return base64_encode($signature);
-    }
-
-    /**
-     * Determines the SHA type (SHA1 or SHA256) of a certificate string.
-     *
-     * @param string $certificateString The certificate string.
-     *
-     * @return string 'http://www.w3.org/2000/09/xmldsig#rsa-sha1', 'http://www.w3.org/2000/09/xmldsig#rsa-sha256', or null if the SHA type cannot be determined.
-     */
-    function getCertificateShaType(string|null $certificateString): string {
-        if(StringEx::isNullOrEmpty($certificateString)) {
-            return XMLSecurityKey::RSA_SHA1;
-        }
-        $parsed = openssl_x509_parse($certificateString);
-        if($parsed === false) {
-            return XMLSecurityKey::RSA_SHA1;
-        }
-        $shaType = $parsed['signatureTypeSN'];
-        if (!StringEx::isNullOrEmpty($shaType)
-            && stripos($shaType, 'sha256') !== false) {
-            return XMLSecurityKey::RSA_SHA256;
-        }
-        return XMLSecurityKey::RSA_SHA1;
     }
 
     /**
