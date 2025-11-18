@@ -28,6 +28,7 @@ use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotEncryptMessa
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotGenerateSignatureException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotLoadCryptoKeyException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Http\HttpMessageInterface;
+use modethirteen\Crypto\CryptoKeyInterface;
 use modethirteen\Http\QueryParams;
 use modethirteen\Http\XUri;
 use modethirteen\TypeEx\StringEx;
@@ -49,31 +50,36 @@ class SamlUriFactory implements SamlUriFactoryInterface {
      */
     public function newAuthnRequestUri(XUri $returnUri, string $securityKey) : XUri {
         if(StringEx::isNullOrEmpty($securityKey)) {
-            $securityKey = \RobRichards\XMLSecLibs\XMLSecurityKey::RSA_SHA1;
+            $securityKey = XMLSecurityKey::RSA_SHA1;
         }
-        $uri = $this->saml->getIdentityProviderSingleSignOnUri();
-        $returnHref = $returnUri->toString();
+
         $id = $this->newId();
         $samlRequest = $this->newAuthnRequest($id);
-        $parameters = [
+        $returnHref = $returnUri->toString();
+        $uri = $this->saml->getIdentityProviderSingleSignOnUri();
+        $uri = $uri->withQueryParams(QueryParams::newFromArray([
             HttpMessageInterface::PARAM_SAML_REQUEST => $samlRequest,
             HttpMessageInterface::PARAM_SAML_RELAYSTATE => $returnHref
-        ];
+        ]));
+        // Sign the request if required
+        if ($this->saml->isAuthnRequestSignatureRequired()) {
+            $privateKey = $this->saml->getServiceProviderPrivateKey();
+            if ($privateKey === null) {
+                throw new SamlCannotGenerateSignatureException();
+            }
 
-        // handle signing
-        if($this->saml->isAuthnRequestSignatureRequired()) {
-            $signature = $this->buildRequestSignature($samlRequest, $returnHref);
-            $parameters['SigAlg'] = $securityKey;
-            $parameters['Signature'] = $signature;
+            $uri = $this->withSignature($uri, $privateKey, $securityKey);
         }
+
         $this->logger->debug('Sending AuthnRequest', [
             'DocumentId' => $id,
             'AuthnRequestId' => $id,
             'Url' => $uri->toString(),
-            'SignatureAlgorithm' => $parameters['SigAlg'] ?? null,
+            'SignatureAlgorithm' => $securityKey,
             'RelayState' => $returnHref
         ]);
-        return $uri->withQueryParams(QueryParams::newFromArray($parameters));
+
+        return $uri;
     }
 
     /**
@@ -85,102 +91,137 @@ class SamlUriFactory implements SamlUriFactoryInterface {
      */
     public function newLogoutRequestUri(string $username, XUri $returnUri) : ?XUri {
         $uri = $this->saml->getIdentityProviderSingleLogoutUri();
-        if($uri === null) {
+        if ($uri === null) {
             return null;
         }
-        $returnHref = $returnUri->toString();
+
+        $securityKey = XMLSecurityKey::RSA_SHA1;
+
         $id = $this->newId();
         $sessionIndex = $this->sessionIndexRegistry->getSessionIndex($username);
         $samlRequest = $this->newLogoutRequest($id, $username, $sessionIndex);
-        $parameters = [
+        $returnHref = $returnUri->toString();
+
+        $uri = $uri->withQueryParams(QueryParams::newFromArray([
             HttpMessageInterface::PARAM_SAML_REQUEST => $samlRequest,
             HttpMessageInterface::PARAM_SAML_RELAYSTATE => $returnHref
-        ];
+        ]));
 
-        // handle signing
-        if($this->saml->isLogoutRequestSignatureRequired()) {
-            $signature = $this->buildRequestSignature($samlRequest, $returnHref);
-            $parameters['SigAlg'] = XMLSecurityKey::RSA_SHA1;
-            $parameters['Signature'] = $signature;
+        // Sign the request if required
+        if ($this->saml->isLogoutRequestSignatureRequired()) {
+            $privateKey = $this->saml->getServiceProviderPrivateKey();
+            if ($privateKey === null) {
+                throw new SamlCannotGenerateSignatureException();
+            }
+
+            $uri = $this->withSignature($uri, $privateKey, $securityKey);
         }
+
         $this->logger->debug('Sending LogoutRequest', [
             'DocumentId' => $id,
             'LogoutRequestId' => $id,
             'Url' => $uri->toString(),
             'SessionIndex' => $sessionIndex,
-            'SignatureAlgorithm' => $parameters['SigAlg'] ?? null,
+            'SignatureAlgorithm' => $securityKey,
             'RelayState' => $returnHref
         ]);
-        return $uri->withQueryParams(QueryParams::newFromArray($parameters));
+
+        return $uri;
     }
 
     /**
      * {@inheritDoc}
      * @throws SamlCannotDeflateOutgoingHttpMessageException
+     * @throws SamlCannotEncryptMessageDataNameIdException
      * @throws SamlCannotGenerateSignatureException
      * @throws SamlCannotLoadCryptoKeyException
      */
     public function newLogoutResponseUri(XUri $returnUri, string $inResponseTo) : ?XUri {
         $uri = $this->saml->getIdentityProviderSingleLogoutUri();
-        if($uri === null) {
+        if ($uri === null) {
             return null;
         }
-        $returnHref = $returnUri->toString();
+
+        $securityKey = XMLSecurityKey::RSA_SHA1;
         $id = $this->newId();
+        $returnHref = $returnUri->toString();
         $samlResponse = $this->newLogoutResponse($id, $inResponseTo);
-        $parameters = [
+
+        // Build base query params
+        $uri = $uri->withQueryParams(QueryParams::newFromArray([
             HttpMessageInterface::PARAM_SAML_RESPONSE => $samlResponse,
             HttpMessageInterface::PARAM_SAML_RELAYSTATE => $returnHref
-        ];
+        ]));
 
-        // handle signing
-        if($this->saml->isLogoutResponseSignatureRequired()) {
-            $signature = $this->buildRequestSignature($samlResponse, $returnHref);
-            $parameters['SigAlg'] = XMLSecurityKey::RSA_SHA1;
-            $parameters['Signature'] = $signature;
+        // Sign the response if required
+        if ($this->saml->isLogoutResponseSignatureRequired()) {
+            $privateKey = $this->saml->getServiceProviderPrivateKey();
+            if ($privateKey === null) {
+                throw new SamlCannotGenerateSignatureException();
+            }
+
+            $uri = $this->withSignature($uri, $privateKey, $securityKey);
         }
+
         $this->logger->debug('Sending LogoutResponse', [
             'DocumentId' => $id,
             'LogoutResponseId' => $id,
             'Url' => $uri->toString(),
-            'SignatureAlgorithm' => $parameters['SigAlg'] ?? null,
+            'SignatureAlgorithm' => $securityKey,
             'RelayState' => $returnHref
         ]);
-        return $uri->withQueryParams(QueryParams::newFromArray($parameters));
+
+        return $uri;
     }
 
     /**
-     * @deprecated replace with \modethirteen\AuthForge\ServiceProvider\Saml\Http\SamlHttpMessageUri::withSignature
+     * @param CryptoKeyInterface $key - private signing key
+     * @param string $algo - XMLDSIG-CORE digest algorithm (default: http://www.w3.org/2000/09/xmldsig#rsa-sha1)
+     * @return static
      * @throws SamlCannotLoadCryptoKeyException
      * @throws SamlCannotGenerateSignatureException
      */
-    private function buildRequestSignature(string $samlRequest, string $relayState) : string {
-        if($this->saml->getServiceProviderX509Certificate() === null) {
-            throw new SamlCannotGenerateSignatureException();
+    private function withSignature(xUri $uri, CryptoKeyInterface $key, string $algo = XMLSecurityKey::RSA_SHA1) : xUri {
+        $msg = '';
+
+        $request = $uri->getQueryParam(HttpMessageInterface::PARAM_SAML_REQUEST);
+        if ($request !== null) {
+            $msg = 'SAMLRequest=' . urlencode($request);
         }
-        $key = $this->saml->getServiceProviderPrivateKey();
-        if($key === null) {
+
+        $response = $uri->getQueryParam(HttpMessageInterface::PARAM_SAML_RESPONSE);
+        if ($response !== null) {
+            $msg = 'SAMLResponse=' . urlencode($response);
+        }
+
+        if ($msg === '') {
             throw new SamlCannotGenerateSignatureException();
         }
 
-        // build request query string
-        $msg = 'SAMLRequest=' . urlencode($samlRequest);
-        $msg .= '&RelayState=' . urlencode($relayState);
-        $msg .= '&SigAlg=' . urlencode(XMLSecurityKey::RSA_SHA1);
+        $relayState = $uri->getQueryParam(HttpMessageInterface::PARAM_SAML_RELAYSTATE);
+        if ($relayState !== null) {
+            $msg .= '&RelayState=' . urlencode($relayState);
+        }
 
-        // sign request query string
+        $msg .= '&SigAlg=' . urlencode($algo);
+
         try {
-            $signer = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, ['type' => 'private']);
+            $signer = new XMLSecurityKey($algo, ['type' => 'private']);
             $signer->loadKey($key->toString(), false);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             throw new SamlCannotLoadCryptoKeyException($key, $e->getMessage());
         }
+
         $signature = $signer->signData($msg);
-        if($signature === null) {
+        if ($signature === null) {
             throw new SamlCannotGenerateSignatureException();
         }
-        return base64_encode($signature);
+
+        return $uri
+            ->withQueryParam(HttpMessageInterface::PARAM_SAML_SIGALG, $algo)
+            ->withQueryParam(HttpMessageInterface::PARAM_SAML_SIGNATURE, base64_encode($signature));
     }
+
 
     /**
      * @throws SamlCannotDeflateOutgoingHttpMessageException
