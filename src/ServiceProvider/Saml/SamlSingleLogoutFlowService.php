@@ -26,6 +26,7 @@ use modethirteen\AuthForge\Common\Utility\ArrayEx;
 use modethirteen\AuthForge\ServiceProvider\Saml\Event\SamlSingleLogoutRequestFlowEvent;
 use modethirteen\AuthForge\ServiceProvider\Saml\Event\SamlSingleLogoutResponseFlowEvent;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotDeflateOutgoingHttpMessageException;
+use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotEncryptMessageDataNameIdException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotGenerateSignatureException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlCannotLoadCryptoKeyException;
 use modethirteen\AuthForge\ServiceProvider\Saml\Exception\SamlDocumentSchemaValidationException;
@@ -217,7 +218,7 @@ class SamlSingleLogoutFlowService implements SamlSingleLogoutFlowServiceInterfac
             } catch(
                 SamlCannotDeflateOutgoingHttpMessageException |
                 SamlCannotGenerateSignatureException |
-                SamlCannotLoadCryptoKeyException $e
+                SamlCannotLoadCryptoKeyException| SamlCannotEncryptMessageDataNameIdException $e
             ) {
                 $this->logger->warning('LogoutRequest error reported, {{Error}}', [
                     'Error' => $e->getMessage()
