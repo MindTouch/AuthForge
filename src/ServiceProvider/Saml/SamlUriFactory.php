@@ -182,6 +182,15 @@ class SamlUriFactory implements SamlUriFactoryInterface {
      * @throws SamlCannotGenerateSignatureException
      */
     private function withSignature(xUri $uri, CryptoKeyInterface $key, string $algo = XMLSecurityKey::RSA_SHA1) : xUri {
+        if (StringEx::isNullOrEmpty($key->toString())) {
+            throw new SamlCannotGenerateSignatureException();
+        }
+
+        $cert = $this->saml->getServiceProviderX509Certificate();
+        if ($cert === null) {
+            throw new SamlCannotGenerateSignatureException();
+        }
+
         $msg = '';
 
         $request = $uri->getQueryParam(HttpMessageInterface::PARAM_SAML_REQUEST);
@@ -212,7 +221,11 @@ class SamlUriFactory implements SamlUriFactoryInterface {
             throw new SamlCannotLoadCryptoKeyException($key, $e->getMessage());
         }
 
-        $signature = $signer->signData($msg);
+        try {
+            $signature = $signer->signData($msg);
+        } catch (Exception $e) {
+            throw new SamlCannotGenerateSignatureException();
+        }
         if ($signature === null) {
             throw new SamlCannotGenerateSignatureException();
         }
