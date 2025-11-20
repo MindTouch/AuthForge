@@ -123,14 +123,16 @@ class OAuthFlowService implements AuthFlowServiceInterface {
             self::PARAM_REDIRECT_URI => $this->oauth->getAuthorizationCodeConsumerUri()->toString()
         ];
 
-        if($this->oauth->getPCKEEnabled()){
+        if ($this->oauth->getPCKEEnabled()) {
             $baseCodeVerifier = $this->sessionStorage->getVal(self::SESSION_OAUTH_CODE_VERIFIER);
-            if(!StringEx::isNullOrEmpty($baseCodeVerifier)) {
+
+            if (!StringEx::isNullOrEmpty($baseCodeVerifier) && !StringEx::isNullOrEmpty($state)) {
                 $encodedState = $this->base64UrlEncode($state);
                 $codeVerifier = $baseCodeVerifier . $encodedState;
                 $tokenFormDataParameterValuePairs[self::SESSION_OAUTH_CODE_VERIFIER] = $codeVerifier;
             }
         }
+
         $tokenUri = $this->oauth->getIdentityProviderTokenUri();
         $clientId = $this->oauth->getRelyingPartyClientId();
         $clientSecret = $this->oauth->getRelyingPartyClientSecret();
