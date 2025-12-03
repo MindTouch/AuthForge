@@ -85,14 +85,11 @@ class OAuthFlowService implements AuthFlowServiceInterface {
     public function getAuthenticatedUri(ServerRequestEx $request) : XUri {
         $this->logger->debug('Processing authorization code response...');
 
-        // OAuth 2.0 authorization code flow incorporates HTTP GET requests only, therefore it is safe to assume all parameters are query parameters
         $params = $request->getQueryParams();
 
-        // fetch return href
         $returnHref = StringEx::stringify($this->sessionStorage->getVal(self::SESSION_OAUTH_HREF));
         $this->sessionStorage->setVal(self::SESSION_OAUTH_HREF);
 
-        // check session state
         $state = $params->get(self::PARAM_STATE);
         $sessionState = $this->sessionStorage->getVal(self::SESSION_OAUTH_STATE);
         $this->sessionStorage->setVal(self::SESSION_OAUTH_STATE);
@@ -124,18 +121,16 @@ class OAuthFlowService implements AuthFlowServiceInterface {
         ];
 
         if ($this->oauth->getPCKEEnabled()) {
-            $baseCodeVerifier = $this->sessionStorage->getVal(self::SESSION_OAUTH_CODE_VERIFIER);
-
-            if (!StringEx::isNullOrEmpty($baseCodeVerifier) && !StringEx::isNullOrEmpty($state)) {
-                $encodedState = $this->base64UrlEncode($state);
-                $codeVerifier = $baseCodeVerifier . $encodedState;
-                $tokenFormDataParameterValuePairs[self::SESSION_OAUTH_CODE_VERIFIER] = $codeVerifier;
+            $fullCodeVerifier = $this->sessionStorage->getVal(self::SESSION_OAUTH_CODE_VERIFIER);
+            if (!StringEx::isNullOrEmpty($fullCodeVerifier)) {
+                $tokenFormDataParameterValuePairs[self::SESSION_OAUTH_CODE_VERIFIER] = $fullCodeVerifier;
             }
         }
 
         $tokenUri = $this->oauth->getIdentityProviderTokenUri();
         $clientId = $this->oauth->getRelyingPartyClientId();
         $clientSecret = $this->oauth->getRelyingPartyClientSecret();
+
         try {
             $tokenResult = match ($this->oauth->getIdentityProviderTokenClientAuthenticationMethod()) {
                 self::TOKEN_AUTH_METHOD_CLIENT_SECRET_POST => $this->newPlug($tokenUri)
@@ -171,7 +166,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
                 'StatusCode' => $tokenResult->getStatus()
             ]);
         }
-        $this->sessionStorage->getVal(self::SESSION_OAUTH_CODE_VERIFIER);
+
         $claims = $this->middlewareService->getClaims($tokenResult);
         $username = $claims->getUsername();
         if(StringEx::isNullOrEmpty($username)) {
@@ -201,8 +196,14 @@ class OAuthFlowService implements AuthFlowServiceInterface {
      */
     public function getLoginUri(XUri $returnUri, string $securityKey) : XUri {
         $clientId = $this->oauth->getRelyingPartyClientId();
-        $state = $this->uuidFactory->uuid4()->toString();
+        $returnHref = $returnUri->toString();
+        $redirectUri = $this->oauth->getAuthorizationCodeConsumerUri()->toString();
+        // Generate state (either UUID or the return URL)
+        $state = str_contains($redirectUri, "code")
+            ? $this->uuidFactory->uuid4()->toString()
+            : $returnHref;
         $encodedState = $this->base64UrlEncode($state);
+
         $uri = $this->oauth->getIdentityProviderAuthorizationUri()
             ->withoutQueryParams([
                 self::PARAM_CLIENT_ID,
@@ -212,39 +213,37 @@ class OAuthFlowService implements AuthFlowServiceInterface {
                 self::PARAM_SCOPE
             ])
             ->with(self::PARAM_CLIENT_ID, $clientId)
-            ->with(self::PARAM_REDIRECT_URI, $this->oauth->getAuthorizationCodeConsumerUri()->toString())
+            ->with(self::PARAM_REDIRECT_URI, $redirectUri)
             ->with(self::PARAM_RESPONSE_TYPE, 'code')
-            ->with(self::PARAM_STATE, $state);
-        if($this->oauth->getPCKEEnabled()){
+            ->with(self::PARAM_STATE, $encodedState);
+
+        if ($this->oauth->getPCKEEnabled()) {
             $baseCodeVerifier = $this->generateCodeVerifier();
-            $codeVerifier = $baseCodeVerifier . $encodedState;
-            $codeChallenge = $this->generateCodeChallenge($codeVerifier);
+            $fullCodeVerifier = $baseCodeVerifier . $encodedState;
+
+            $codeChallenge = $this->generateCodeChallenge($fullCodeVerifier);
+
             $uri = $uri->with(self::PARAM_CODE_CHALLENGE, $codeChallenge)
                 ->with(self::PARAM_CODE_CHALLENGE_METHOD, 'S256');
 
-            // TODO this needs to reviewed closer.
-            $this->sessionStorage->setVal(self::PARAM_CODE_CHALLENGE, $codeChallenge);
-            $this->sessionStorage->setVal(self::SESSION_OAUTH_CODE_VERIFIER, $baseCodeVerifier);
+            $this->sessionStorage->setVal(self::SESSION_OAUTH_CODE_VERIFIER, $fullCodeVerifier);
         }
 
-        // scope
         $scopes = array_unique(array_merge($this->middlewareService->getScopes(), $this->oauth->getScopes()));
         $uri = $uri->with(self::PARAM_SCOPE, implode(' ', $scopes));
 
-        // store session state
-        $returnHref = $returnUri->toString();
+        // Store the return URL and encoded state in session
         $this->sessionStorage->setVal(self::SESSION_OAUTH_HREF, $returnHref);
-        $this->sessionStorage->setVal(self::SESSION_OAUTH_STATE, $state);
+        $this->sessionStorage->setVal(self::SESSION_OAUTH_STATE, $encodedState);
         $this->logger->debug('Generating authorization code request', [
             'AuthorizeEndpointUrl' => $uri->toString(),
             'ClientId' => $clientId,
             'ReturnUrl' => $returnHref,
             'Scopes' => $scopes,
-            'State' => $state
+            'State' => $encodedState
         ]);
         return $uri;
     }
-
     public function getLogoutUri(string $id, XUri $returnUri) : ?XUri {
         return $this->middlewareService->getLogoutUri($id, $returnUri);
     }
