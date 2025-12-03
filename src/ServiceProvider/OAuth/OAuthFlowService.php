@@ -201,7 +201,7 @@ class OAuthFlowService implements AuthFlowServiceInterface {
      */
     public function getLoginUri(XUri $returnUri, string $securityKey) : XUri {
         $clientId = $this->oauth->getRelyingPartyClientId();
-        $state = $this->uuidFactory->uuid4()->toString();
+        $state = $returnUri->toString();
         $encodedState = $this->base64UrlEncode($state);
         $uri = $this->oauth->getIdentityProviderAuthorizationUri()
             ->withoutQueryParams([
