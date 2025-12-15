@@ -32,7 +32,7 @@ interface AuthFlowServiceInterface {
      * @param string $securityKey
      * @return XUri
      */
-    public function getLoginUri(XUri $returnUri, string $securityKey) : XUri;
+    public function getLoginUri(XUri $returnUri, string $securityKey, string $serviceName) : XUri;
 
     /**
      * @param string $id - user identifier for downstream identity provider
