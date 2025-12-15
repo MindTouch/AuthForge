@@ -194,14 +194,24 @@ class OAuthFlowService implements AuthFlowServiceInterface {
      * @return XUri The constructed login URI with necessary query parameters for OAuth 2.0 authorization code flow.
      * @throws RandomException
      */
-    public function getLoginUri(XUri $returnUri, string $securityKey) : XUri {
+    public function getLoginUri(XUri $returnUri, string $securityKey, string $serviceName) : XUri {
         $clientId = $this->oauth->getRelyingPartyClientId();
         $returnHref = $returnUri->toString();
+
+        $returnUriForState = $returnUri;
+        if (!StringEx::isNullOrEmpty($serviceName)) {
+            $returnUriForState = XUri::newFromString($returnHref)
+                ->with('name', $serviceName);
+        }
+
+        $returnHrefForState = $returnUriForState->toString();
+
         $redirectUri = $this->oauth->getAuthorizationCodeConsumerUri()->toString();
-        // Generate state (either UUID or the return URL)
+        // Generate state (either UUID or the return URL. Code is included in non Global Redirect)
         $state = str_contains($redirectUri, "code")
             ? $this->uuidFactory->uuid4()->toString()
-            : $returnHref;
+            : $returnHrefForState;
+
         $encodedState = $this->base64UrlEncode($state);
 
         $uri = $this->oauth->getIdentityProviderAuthorizationUri()
@@ -232,16 +242,18 @@ class OAuthFlowService implements AuthFlowServiceInterface {
         $scopes = array_unique(array_merge($this->middlewareService->getScopes(), $this->oauth->getScopes()));
         $uri = $uri->with(self::PARAM_SCOPE, implode(' ', $scopes));
 
-        // Store the return URL and encoded state in session
         $this->sessionStorage->setVal(self::SESSION_OAUTH_HREF, $returnHref);
         $this->sessionStorage->setVal(self::SESSION_OAUTH_STATE, $encodedState);
+
         $this->logger->debug('Generating authorization code request', [
             'AuthorizeEndpointUrl' => $uri->toString(),
             'ClientId' => $clientId,
             'ReturnUrl' => $returnHref,
             'Scopes' => $scopes,
-            'State' => $encodedState
+            'State' => $encodedState,
+            'ServiceName' => $serviceName
         ]);
+
         return $uri;
     }
     public function getLogoutUri(string $id, XUri $returnUri) : ?XUri {
