@@ -40,6 +40,8 @@ class DocumentFactory implements DocumentFactoryInterface {
      * @throws SamlDocumentDecryptionInvalidEncryptionAlgorithmException
      * @throws SamlDocumentDecryptionNoEncryptedDataException
      * @throws SamlDocumentDecryptionException
+     * @throws SamlDocumentCannotLoadTextException
+     * @throws SamlDocumentEntityNotAllowedException
      */
     public function newDecryptedDocument(Document $doc, CryptoKeyInterface $privateKey) : Document {
         $encryptedDoc = clone $doc;
@@ -80,11 +82,26 @@ class DocumentFactory implements DocumentFactoryInterface {
             }
         }
         try {
-            $enc->decryptNode($symmetricKey, true);
+
+            // decrypt to a raw string instead of splicing in place: XMLSecEnc::decryptNode(replace=true)
+            // does importNode+replaceChild, and on libxml2 >= 2.13 that reconciliation hoists the
+            // xmlns:ds/xmlns:ec declarations onto the decrypted <saml:Assertion> apex. When the enveloped
+            // signature's exc-c14n PrefixList includes those prefixes the hoisted declarations enter the
+            // canonical bytes and the digest no longer matches, failing signature validation.
+            $decryptedXml = $enc->decryptNode($symmetricKey, false);
         } catch(Exception $e) {
             throw new SamlDocumentDecryptionException($e->getMessage());
         }
-        return $encryptedDoc;
+
+        // textually splice the decrypted assertion back in place of the serialized EncryptedData, then
+        // reparse the whole envelope once; a clean parse never reconciles namespaces
+        $encryptedDataXml = $encryptedDoc->saveXML($encryptedData);
+        $envelopeXml = $encryptedDoc->saveXML();
+        $newEnvelopeXml = str_replace($encryptedDataXml, $decryptedXml, $envelopeXml);
+        if($newEnvelopeXml === $envelopeXml) {
+            throw new SamlDocumentDecryptionException('decrypted assertion could not be spliced into the response envelope');
+        }
+        return $this->newMessageDocument($newEnvelopeXml);
     }
 
     /**
