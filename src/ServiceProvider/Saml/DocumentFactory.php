@@ -40,6 +40,8 @@ class DocumentFactory implements DocumentFactoryInterface {
      * @throws SamlDocumentDecryptionInvalidEncryptionAlgorithmException
      * @throws SamlDocumentDecryptionNoEncryptedDataException
      * @throws SamlDocumentDecryptionException
+     * @throws SamlDocumentCannotLoadTextException
+     * @throws SamlDocumentEntityNotAllowedException
      */
     public function newDecryptedDocument(Document $doc, CryptoKeyInterface $privateKey) : Document {
         $encryptedDoc = clone $doc;
@@ -80,11 +82,32 @@ class DocumentFactory implements DocumentFactoryInterface {
             }
         }
         try {
-            $enc->decryptNode($symmetricKey, true);
+
+            // decrypt to a raw string instead of splicing in place: XMLSecEnc::decryptNode(replace=true)
+            // does importNode+replaceChild, and on libxml2 >= 2.13 that reconciliation hoists the
+            // xmlns:ds/xmlns:ec declarations onto the decrypted <saml:Assertion> apex. When the enveloped
+            // signature's exc-c14n PrefixList includes those prefixes the hoisted declarations enter the
+            // canonical bytes and the digest no longer matches, failing signature validation.
+            $decryptedXml = $enc->decryptNode($symmetricKey, false);
+
+            // unique per-call marker (random so attacker-influenced envelope content cannot collide with it)
+            $marker = '__authforge_decrypted_assertion_' . bin2hex(random_bytes(16)) . '__';
         } catch(Exception $e) {
             throw new SamlDocumentDecryptionException($e->getMessage());
         }
-        return $encryptedDoc;
+
+        // swap the EncryptedData for the marker, serialize the whole envelope, then textually splice the
+        // decrypted assertion in place of the marker and reparse once. Replacing an element with a text
+        // node never reconciles namespaces, and matching a marker we inserted ourselves - rather than a
+        // re-serialized EncryptedData fragment, whose namespace declarations can differ from their
+        // in-document form - keeps the splice independent of how libxml serializes the subtree.
+        $encryptedData->parentNode->replaceChild($encryptedDoc->createTextNode($marker), $encryptedData);
+        $envelopeXml = $encryptedDoc->saveXML();
+        $newEnvelopeXml = str_replace($marker, $decryptedXml, $envelopeXml);
+        if($newEnvelopeXml === $envelopeXml) {
+            throw new SamlDocumentDecryptionException('decrypted assertion could not be spliced into the response envelope');
+        }
+        return $this->newMessageDocument($newEnvelopeXml);
     }
 
     /**
