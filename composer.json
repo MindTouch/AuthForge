@@ -21,7 +21,7 @@
     "ext-gmp": "*",
     "ext-openssl": "*",
     "ext-zlib": "*",
-    "php": "~8.2.0",
+    "php": "^8.2 || ^8.3 || ^8.4 || ^8.5",
     "modethirteen/fluent-cache": "dev-main-php82",
     "modethirteen/hyperplug": "dev-main-php82",
     "modethirteen/miniflex": "dev-main-php82",
